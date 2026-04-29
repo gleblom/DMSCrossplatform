@@ -1,0 +1,66 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:CompileBindings="False"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="DMSCrossplatform.Views.Custom.MultiSelectComboBoxView">
+
+    <UserControl.Styles>
+        <Style Selector="DropDownButton.multi-select-button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinHeight" Value="44"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Border.multi-select-popup">
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{DynamicResource DmsBackgroundBrush}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <controls:Card Padding="4"
+                   Background="{DynamicResource DmsSurfaceBrush}">
+
+        <DropDownButton Classes="multi-select-button"
+                        Foreground="{DynamicResource DmsForegroundBrush}"
+                        Content="{Binding DisplayText}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Center">
+
+            <DropDownButton.Flyout>
+                <Flyout>
+                    <Border Classes="multi-select-popup"
+                            Width="300"
+                            MaxHeight="300">
+
+                        <Grid RowDefinitions="Auto,*">
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding FilteredItems}"
+                                              Margin="4">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      Margin="4,8">
+                                                <TextBlock Text="{Binding DisplayText}"
+                                                           FontSize="14"
+                                                           Foreground="{DynamicResource DmsForegroundBrush}"
+                                                           VerticalAlignment="Center"/>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Flyout>
+            </DropDownButton.Flyout>
+        </DropDownButton>
+    </controls:Card>
+</UserControl>

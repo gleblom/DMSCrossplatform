@@ -1,0 +1,62 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             x:CompileBindings="False"
+             x:DataType="vm:RegisterViewModel"
+             x:Class="DMSCrossplatform.Views.RegisterView">
+        <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
+        <Border Height="64"
+                Margin="0, 50"
+                VerticalAlignment="Top">
+            <avalonia:MaterialIcon 
+                Kind="ArchiveLock"
+                Width="72"
+                Height="72"
+                Foreground="#4CAF50"/>
+        </Border>
+            <ScrollViewer Margin="0,128,0,0"
+                          VerticalScrollBarVisibility="Auto">
+        <Border Padding="24" MaxWidth="300" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Background="{DynamicResource DmsSurfaceColor}" CornerRadius="12">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Регистрация" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{DynamicResource DmsForegroundBrush}" />
+                
+
+                <TextBox Text="{Binding Email}"
+                         PlaceholderText="Email">
+                </TextBox>
+
+                <TextBox Text="{Binding Phone}"
+                         PlaceholderText="Телефон">
+                </TextBox>
+                <TextBox PlaceholderText="Пароль"
+                         Classes="revealPasswordButton" 
+                         MaxLength="50"
+                         Text="{Binding Password}" PasswordChar="•" />
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="{DynamicResource DmsErrorBrush}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding ErrorMessage, 
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <TextBlock Text="{Binding SuccessMessage}" 
+                           Foreground="{DynamicResource DmsPrimaryColor}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding SuccessMessage, 
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <Button Content="Зарегистрироваться" HorizontalAlignment="Stretch"
+                        Width="250"
+                        
+                        Background="{DynamicResource DmsPrimaryBrush}" Foreground="White"
+                        Command="{Binding RegisterCommand}" IsEnabled="{Binding !IsBusy}" />
+                <Button Content="Назад" Classes="Flat"
+                        Command="{Binding CancelCommand}" />
+  
+            </StackPanel>
+        </Border>
+            </ScrollViewer>
+    </Grid>
+</UserControl>

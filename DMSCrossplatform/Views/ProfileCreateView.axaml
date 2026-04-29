@@ -1,0 +1,49 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:CompileBindings="False"
+             x:DataType="vm:ProfileCreateViewModel"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             x:Class="DMSCrossplatform.Views.ProfileCreateView">
+    <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
+        <Border Height="64"
+                Margin="0, 50"
+                VerticalAlignment="Top">
+            <avalonia:MaterialIcon 
+                Kind="ArchiveLock"
+                Width="72"
+                Height="72"
+                Foreground="#4CAF50"/>
+        </Border>
+        <Border Padding="24" MaxWidth="300" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Background="{DynamicResource DmsSurfaceColor}" CornerRadius="12">
+            
+            <StackPanel Spacing="12">
+                <TextBlock Text="Создание профиля" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{DynamicResource DmsForegroundBrush}" />
+                <TextBox Text="{Binding SecondName}"
+                         PlaceholderText="Фамилия">
+                </TextBox>
+
+                <TextBox Text="{Binding FirstName}"
+                         PlaceholderText="Имя">
+                </TextBox>
+
+                <TextBox Text="{Binding ThirdName}"
+                         PlaceholderText="Отчество">
+                    </TextBox>
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="{DynamicResource DmsErrorBrush}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding ErrorMessage, 
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <Button Foreground="{DynamicResource DmsForegroundBrush}"
+                        Background="{DynamicResource DmsPrimaryBrush}"
+                        Command="{Binding CreateProfileCommand}"
+                        IsEnabled="{Binding !_isBusy}"
+                        Content="Продолжить"></Button>
+                </StackPanel>
+            
+            </Border>
+        </Grid>
+</UserControl>

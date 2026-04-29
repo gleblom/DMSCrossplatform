@@ -1,0 +1,40 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:DataType="vm:CompanyCreateViewModel"
+             x:CompileBindings="False"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             x:Class="DMSCrossplatform.Views.CompanyCreateView">
+<Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
+    <Border Height="64"
+            Margin="0, 50"
+            VerticalAlignment="Top">
+        <avalonia:MaterialIcon 
+            Kind="ArchiveLock"
+            Width="72"
+            Height="72"
+            Foreground="#4CAF50"/>
+    </Border>
+    <Border Padding="24" MaxWidth="350" VerticalAlignment="Center" HorizontalAlignment="Center"
+            Background="{DynamicResource DmsSurfaceColor}" CornerRadius="12">
+        <StackPanel Spacing="12">
+            <TextBlock Text="Создание организации" FontSize="22" FontWeight="SemiBold"
+                       Foreground="{DynamicResource DmsForegroundBrush}" />
+            <TextBlock Text="Для начала работы в системе необходимо создать организацию" TextWrapping="Wrap" FontSize="18" FontWeight="Light"
+                       Foreground="{DynamicResource DmsForegroundBrush}" />
+            <TextBox PlaceholderText="Название организации"
+                     Text="{Binding CompanyName}"/>
+            <TextBlock Text="{Binding ErrorMessage}" 
+                       Foreground="{DynamicResource DmsErrorBrush}"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding ErrorMessage, 
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <Button Foreground="{DynamicResource DmsForegroundBrush}"
+                    Background="{DynamicResource DmsPrimaryBrush}"
+                    IsEnabled="{Binding IsEnabled}"
+                    Command="{Binding CreateCompanyCommand}"
+                    Content="Продолжить"></Button>
+        </StackPanel>
+    </Border>
+</Grid>
+</UserControl>

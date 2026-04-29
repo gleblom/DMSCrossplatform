@@ -1,0 +1,61 @@
+﻿<DrawerPage Header="Header" xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:views="clr-namespace:DMSCrossplatform.Views"
+             DrawerLayoutBehavior="CompactOverlay"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:CompileBindings="False"
+             x:DataType="vm:MenuShellViewModel"
+             x:Class="DMSCrossplatform.Views.MenuShellView">
+    <DrawerPage.Drawer>
+        <StackPanel Spacing="4"  Background="{DynamicResource DmsSurfaceBrush}">
+            <Button Classes="flat"   
+                    Command="{Binding NavigateNewDocCommand}" >
+                <StackPanel Orientation="Horizontal" Spacing="3">
+                    <avalonia:MaterialIcon Kind="FileDocumentAdd" Width="25" Height="25"/>
+                    <TextBlock Margin="10,10" HorizontalAlignment="Center" 
+                               Text="Новый документ"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="flat" Command="{Binding NavigatePublicCommand}" >
+                <StackPanel Orientation="Horizontal" Spacing="3">
+                    <avalonia:MaterialIcon Kind="FileDocumentBoxSearch" Width="25" Height="25"/>
+                    <TextBlock Margin="10,10" HorizontalAlignment="Center" 
+                               Text="Все документы"/>
+                </StackPanel>
+            </Button>
+            <Button Classes="flat" Command="{Binding NavigateMyDocsCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="3">
+                    <avalonia:MaterialIcon Kind="FileAccountOutline" Width="25" Height="25"/>
+                    <TextBlock Margin="10,10" HorizontalAlignment="Center" 
+                               Text="Мои документы"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding NavigateIncomingCommand}" Classes="flat" >
+                <StackPanel Orientation="Horizontal" Spacing="3">
+                    <avalonia:MaterialIcon Kind="InboxArrowDownOutline" Width="25" Height="25"/>
+                    <TextBlock Margin="10,10" HorizontalAlignment="Center" 
+                               Text="Входящие"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding SignOutCommand}" Classes="flat">
+                <StackPanel Orientation="Horizontal" Spacing="3">
+                    <avalonia:MaterialIcon Kind="SignOut" Width="25" Height="25"/>
+                    <TextBlock Margin="10,10" HorizontalAlignment="Center" 
+                               Text="Выход"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </DrawerPage.Drawer>
+
+    <NavigationPage>
+        <views:PageControlView>
+            <views:PageControlView.Header>
+                <TextBlock Text="Электронный архив корпоративной документации"></TextBlock>
+            </views:PageControlView.Header>
+        </views:PageControlView>
+    </NavigationPage>
+
+
+    
+</DrawerPage>

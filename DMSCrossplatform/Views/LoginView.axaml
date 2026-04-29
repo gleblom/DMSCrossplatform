@@ -1,0 +1,51 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:CompileBindings="False"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:DataType="vm:LoginViewModel"
+             x:Class="DMSCrossplatform.Views.LoginView">
+    <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
+        <Border Height="64"
+                Margin="0, 50"
+                VerticalAlignment="Top">
+            <avalonia:MaterialIcon 
+                Kind="ArchiveLock"
+                Width="72"
+                Height="72"
+                Foreground="#4CAF50"/>
+        </Border>
+        <ScrollViewer Margin="0,128,0,0"
+                      VerticalScrollBarVisibility="Auto">
+        <Border Padding="24" MaxWidth="350" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Background="{DynamicResource DmsSurfaceColor}" CornerRadius="12">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Вход в систему" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{DynamicResource DmsForegroundBrush}" />
+                <TextBox PlaceholderText ="Email" 
+                         MaxLength="50"
+                         Text="{Binding Email}" />
+                <TextBox PlaceholderText="Пароль"
+                         MaxLength="50"
+                         Classes="revealPasswordButton" 
+                         
+                         Text="{Binding Password}" PasswordChar="•" />
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="{DynamicResource DmsErrorBrush}"
+                           IsVisible="{Binding ErrorMessage, 
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <Button Content="Войти" HorizontalAlignment="Stretch"
+                        Background="{DynamicResource DmsPrimaryBrush}" 
+                        Foreground="{DynamicResource DmsForegroundBrush}"
+                        Command="{Binding SignInCommand}" IsEnabled="{Binding !IsBusy}" />
+                <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+                    <Button Content="Зарегистрироваться" Classes="Flat"
+                            Command="{Binding GoToRegisterCommand}" />
+                    <Button Content="Восстановление" Classes="Flat"
+                            Command="{Binding GoToForgotPasswordCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

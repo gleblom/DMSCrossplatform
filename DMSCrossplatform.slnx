@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="DMSCrossplatform.Android/DMSCrossplatform.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="DMSCrossplatform.Browser/DMSCrossplatform.Browser.csproj" />
+  <Project Path="DMSCrossplatform.Desktop/DMSCrossplatform.Desktop.csproj" />
+  <Project Path="DMSCrossplatform.iOS/DMSCrossplatform.iOS.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="DMSCrossplatform/DMSCrossplatform.csproj" />
+</Solution>
