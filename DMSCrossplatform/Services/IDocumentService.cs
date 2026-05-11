@@ -8,7 +8,9 @@ namespace DMSCrossplatform.Services;
 
 public interface IDocumentService
 {
-    Task<IReadOnlyList<DocumentFullReadDto>> ListAsync(int? statusId = null, int? categoryId = null,
+    Task<IReadOnlyList<DocumentFullReadDto>> ListAsync(
+        string? startDate = null, string? endDate = null,
+        List<Guid>? authors = null, List<int>? statusId = null, List<int>? categoryId = null,
         string? search = null, string? mode = null, CancellationToken ct = default);
     Task<DocumentReadDto> GetAsync(Guid id, CancellationToken ct = default);
     Task<DocumentReadDto> CreateAsync(DocumentCreateDto dto, CancellationToken ct = default);
@@ -18,4 +20,12 @@ public interface IDocumentService
     Task<DocumentVersionReadDto> CreateVersionAsync(Guid documentId, DocumentVersionCreateDto dto, CancellationToken ct = default);
     Task<DocumentVersionReadDto> UploadVersionAsync(Guid documentId, byte[] fileBytes, string fileName, string mimeType, CancellationToken ct = default);
     Task<string> GetDownloadUrlAsync(Guid documentId, int versionId, CancellationToken ct = default);
+    
+    Task CreateDocumentUnits(Guid documentId, CreateDocumentUnitDto  unitIds, CancellationToken ct = default);
+    
+    Task<IReadOnlyList<MvDocumentVersionReadDto>> GetDocumentVersionsAsync(Guid documentId, CancellationToken ct = default);
+    
+    Task<IReadOnlyList<MvDocumentApprovalReadDto>> GetDocumentApprovalsAsync(Guid documentId, CancellationToken ct = default);
+    
+    Task<DocumentApprovalReadDto> GetApprovalByStep(Guid documentId, int stepIndex, int versionId, CancellationToken ct = default);
 }

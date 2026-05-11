@@ -14,7 +14,7 @@ namespace DMSCrossplatform.ViewModels;
 public partial class RegisterViewModel: ViewModelBase
 {
     private readonly IAuthService _auth;
-    private readonly INavigationService _nav;
+    private readonly INavigationService<StartupRegionState> _nav;
     private readonly ILogger<RegisterViewModel> _log;
 
 
@@ -25,7 +25,7 @@ public partial class RegisterViewModel: ViewModelBase
     [ObservableProperty] private string? _successMessage;
     [ObservableProperty] private bool _isBusy;
 
-    public RegisterViewModel(IAuthService auth, INavigationService nav, ILogger<RegisterViewModel> log)
+    public RegisterViewModel(IAuthService auth, INavigationService<StartupRegionState>  nav, ILogger<RegisterViewModel> log)
     {
         _auth = auth;
         _nav = nav;
@@ -49,7 +49,7 @@ public partial class RegisterViewModel: ViewModelBase
         try
         {
             IsBusy = true;
-            await _auth.RegisterDirectorAsync(new UserCreateDto
+            await _auth.RegisterAsync(new UserCreateDto
             {
                 Email = Email, Password = Password, Phone = Phone
             });
@@ -75,5 +75,5 @@ public partial class RegisterViewModel: ViewModelBase
     }
 
     [RelayCommand]
-    private void Cancel() => _nav.GoBack();
+    private void Cancel() => _nav.NavigateTo<LoginViewModel>();
 }

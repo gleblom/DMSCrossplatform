@@ -31,7 +31,7 @@ namespace DMSCrossplatform.Models.Dto
     {
         [JsonProperty("access_token")] public string AccessToken { get; set; } = string.Empty;
         [JsonProperty("token_type")] public string TokenType { get; set; } = "bearer";
-        [JsonProperty("refresh_token")] public string RefreshToken { get; set; } = string.Empty;
+        [JsonProperty("refresh_token")] public string? RefreshToken { get; set; } = string.Empty;
     }
 
     public class UserFullDto
@@ -46,10 +46,14 @@ namespace DMSCrossplatform.Models.Dto
         [JsonProperty("third_name")] public string? ThirdName { get; set; }
         [JsonProperty("company_id")] public Guid? CompanyId { get; set; }
         [JsonProperty("company_name")] public string? CompanyName { get; set; }
+        [JsonProperty("otp_enabled")] public bool OtpEnabled { get; set; }
+        [JsonProperty("otp_verified")] public bool OtpVerified { get; set; }
         [JsonProperty("role_id")] public int? RoleId { get; set; }
         [JsonProperty("role_name")] public string? RoleName { get; set; }
         [JsonProperty("unit_id")] public int? UnitId { get; set; }
         [JsonProperty("unit_name")] public string? UnitName { get; set; }
+        [JsonProperty("user_created_at")] public DateTime CreatedAt { get; set; }
+        [JsonProperty("passkey_enabled")] public bool? PasskeyEnabled { get; set; }
         
         [NotMapped]
         public string? FullName => $"{FirstName} {SecondName} {ThirdName}";

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,14 +12,20 @@ namespace DMSCrossplatform.Services;
 public class DocumentService : IDocumentService
 {
     private readonly IApiClient _api;
+        
     public DocumentService(IApiClient api) => _api = api;
 
-    public async Task<IReadOnlyList<DocumentFullReadDto>> ListAsync(int? statusId = null, int? categoryId = null,
+    public async Task<IReadOnlyList<DocumentFullReadDto>> ListAsync(
+        string? startDate = null, string? endDate = null,
+        List<Guid>? authors = null, List<int>? statusId = null, List<int>? categoryId = null,
         string? search = null, string? mode = null, CancellationToken ct = default)
     {
-        var query = new System.Collections.Generic.List<string>();
-        if (statusId.HasValue) query.Add($"status_id={statusId}");
-        if (categoryId.HasValue) query.Add($"category_id={categoryId}");
+        var query = new List<string>();
+        if (statusId?.Count != 0 && statusId != null) query.Add(string.Join("&", statusId.Select(id => $"status_id={id}")));
+        if (categoryId?.Count != 0 && categoryId != null) query.Add(string.Join("&", categoryId.Select(id => $"category_id={id}")));
+        if(authors?.Count != 0 && authors != null) query.Add(string.Join("&", authors.Select(id => $"authors={id}")));
+        if (startDate != null) query.Add($"from_date={startDate}");
+        if (endDate != null) query.Add($"to_date={endDate}");
         if (!string.IsNullOrEmpty(search)) query.Add($"search={Uri.EscapeDataString(search)}");
         if (!string.IsNullOrEmpty(mode)) query.Add($"mode={Uri.EscapeDataString(mode)}");
         var qs = query.Count > 0 ? "?" + string.Join("&", query) : "";
@@ -61,4 +68,18 @@ public class DocumentService : IDocumentService
             $"/api/documents/{documentId}/versions/{versionId}/download-url", ct);
         return raw?.url?.ToString() ?? string.Empty;
     }
+
+    public Task CreateDocumentUnits(Guid documentId, CreateDocumentUnitDto unitIds, CancellationToken ct = default)
+        => _api.PostJsonAsync<object, object>($"/api/documents/{documentId}/units", unitIds.UnitsIds, ct);
+    
+    public Task<IReadOnlyList<MvDocumentVersionReadDto>> GetDocumentVersionsAsync(Guid documentId, CancellationToken ct = default)
+        => _api.GetAsync<IReadOnlyList<MvDocumentVersionReadDto>>($"/api/documents/{documentId}/versions", ct);
+    public Task<IReadOnlyList<MvDocumentApprovalReadDto>> GetDocumentApprovalsAsync(Guid documentId, CancellationToken ct = default)
+        => _api.GetAsync<IReadOnlyList<MvDocumentApprovalReadDto>>($"/api/documents/{documentId}/approvals", ct);
+
+    public Task<DocumentApprovalReadDto> GetApprovalByStep(Guid documentId, int stepIndex, int versionId,
+        CancellationToken ct = default)
+        => _api.GetAsync<DocumentApprovalReadDto>(
+            $"/api/documents/{documentId}/versions/{versionId}/approval/{stepIndex}", ct);
+
 }

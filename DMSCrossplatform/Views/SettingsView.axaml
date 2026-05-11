@@ -1,0 +1,133 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             x:CompileBindings="False"
+             x:DataType="viewModels:SettingsViewModel"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
+             x:Class="DMSCrossplatform.Views.SettingsView">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border MaxWidth="300" Padding="24"  VerticalAlignment="Center" HorizontalAlignment="Center"
+                Background="{DynamicResource DmsSurfaceColor}">
+            <StackPanel Spacing="12">
+
+                <StackPanel Orientation="Horizontal">
+                    <avalonia:MaterialIcon Kind="AccountCircle" Width="20" Height="20"></avalonia:MaterialIcon>
+                    <TextBlock Text="Профиль" FontSize="20" FontWeight="SemiBold"
+                               Foreground="{DynamicResource DmsForegroundBrush}" />
+                </StackPanel>
+                <controls:Card DataContext="{Binding User}" >
+                    <StackPanel Spacing="12">
+                        <TextBox Classes="solo"  FontSize="18">
+                            <TextBox.InnerLeftContent>
+                                <TextBlock Text="{Binding FullName}" />
+                            </TextBox.InnerLeftContent>
+                            <TextBox.InnerRightContent>
+                                <TextBlock Text="{Binding RoleName}" />
+                            </TextBox.InnerRightContent>
+                        </TextBox>
+                        <TextBox Classes="solo" FontSize="18" Text="{Binding CompanyName}" PlaceholderText="Организация"/>
+                        <TextBox Classes="solo" FontSize="18" Text="{Binding Email}" PlaceholderText="Email"/>
+                        <TextBox Classes="solo" FontSize="18" Text="{Binding Phone}" PlaceholderText="Телефон"/>
+                    </StackPanel>
+
+                </controls:Card>
+                <StackPanel Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <avalonia:MaterialIcon Kind="Security" Width="20" Height="20"></avalonia:MaterialIcon>
+                        <TextBlock Text="Защита аккаунта" FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource DmsForegroundBrush}" />
+                    </StackPanel>
+                    <controls:Card >
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Вход по паролю и одноразовому коду (через стороннее приложение 2FA)" TextWrapping="Wrap"/>
+                            <ToggleSwitch Command="{Binding TwoFactorAuthCommand}" Margin="140,0" IsChecked="{Binding OtpEnabled}" />
+                        </StackPanel>
+                    </controls:Card>
+                    <controls:Card Padding="16">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Вход по ключу безопасности" TextWrapping="Wrap"/>
+                            <ToggleSwitch IsChecked="{Binding PasskeyEnabled}" IsEnabled="{Binding !PasskeyEnabled}" Margin="140,0" Command="{Binding EnablePasskeyCommand}"/>
+                        </StackPanel>
+                    </controls:Card>
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="{DynamicResource DmsErrorBrush}"
+                               IsVisible="{Binding ErrorMessage, 
+                               Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+    
+            </StackPanel>
+        </Border>    
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                IsVisible="{Binding IsVisible}"
+                Background="#80000000"
+                MaxWidth="300"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel VerticalAlignment="Center"
+                        Background="{DynamicResource DmsBackgroundBrush}"
+                        HorizontalAlignment="Center">
+                <Border Padding="14">
+                    <TextBlock FontWeight="Bold" FontSize="18" Text="Двухфакторная аутентификация"></TextBlock>
+                </Border>
+                
+                <Border Padding="14">
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" FontSize="14" Text="1. Установите приложение для 2FA (Google Authenticator или Microsoft Authenticator)"></TextBlock>
+                        <TextBlock TextWrapping="Wrap" FontSize="14" Text="2. Отсканируйте появившийся на экране QR-код"></TextBlock>
+                    </StackPanel>
+                </Border>   
+                
+                
+                <Border>
+                    <Image Source="{Binding QrCodeBitmap}"  Width="200" Height="200"></Image>
+                </Border>
+                
+                <Border  Padding="14">
+                    <TextBlock FontWeight="Bold" FontSize="14" Text="Или введите секретный код вручную"></TextBlock>
+                </Border>
+                
+                <Border  Padding="14">
+                    <TextBlock FontSize="14" Text="{Binding SecretCode}"></TextBlock>
+                </Border>
+                
+                <Border Padding="14">
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold" FontSize="14" Text="Подтвердите код"></TextBlock>  
+                        <TextBlock TextWrapping="Wrap" FontSize="14" Text="Для сохранения настроек введите код аутентификации из приложения"></TextBlock>
+                    </StackPanel>
+                </Border>
+                
+
+                
+                <Border Padding="14">
+                    <StackPanel>
+                        <TextBox MaxLength="6" PlaceholderText="Код аутентификации" 
+                                 Text="{Binding AuthCode}"></TextBox>
+                        <TextBlock Text="{Binding ErrorMessage}" 
+                                   Foreground="{DynamicResource DmsErrorBrush}"
+                                   IsVisible="{Binding ErrorMessage, 
+                               Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </Border>
+                
+                <Border Padding="14">
+                    <StackPanel Orientation="Horizontal">
+                        <Button IsEnabled="{Binding !IsBusy}"
+                                Command="{Binding CancelCommand}" Classes="flat" 
+                                Content="Отмена"></Button>
+                        <Button Command="{Binding ActivateCommand}" 
+                                Content="Подтвердить и сохранить"></Button>
+                    </StackPanel>
+                </Border>
+                
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

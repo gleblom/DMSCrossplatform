@@ -93,7 +93,7 @@ public class ApiClient: IApiClient
         var raw = await resp.Content.ReadAsStringAsync(ct);
         var msg = ExtractMessage(raw, resp.StatusCode);
         _log.LogWarning("API error {Status} {Path}: {Body}", resp.StatusCode, resp.RequestMessage?.RequestUri, raw);
-        // throw new ApiException(resp.StatusCode, msg, resp.StatusCode.ToString());
+        throw new ApiException(resp.StatusCode, msg, resp.StatusCode.ToString());
     }
 
     private static string ExtractMessage(string raw, HttpStatusCode status)

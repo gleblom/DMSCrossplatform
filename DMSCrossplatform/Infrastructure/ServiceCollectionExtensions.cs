@@ -2,6 +2,7 @@
 using DMSCrossplatform.Infrastructure.Api;
 using DMSCrossplatform.Infrastructure.Logging;
 using DMSCrossplatform.Infrastructure.Navigation;
+using DMSCrossplatform.Infrastructure.Policy;
 using DMSCrossplatform.Infrastructure.Storage;
 using DMSCrossplatform.Services;
 using DMSCrossplatform.ViewModels;
@@ -15,10 +16,11 @@ namespace DMSCrossplatform.Infrastructure;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDmsClient(
-        this IServiceCollection services, AppSettings settings, ITokenStorage tokenStorage)
+        this IServiceCollection services, AppSettings settings, ITokenStorage tokenStorage, IWebAuthnClient client)
     {
         services.AddSingleton(settings);
         services.AddSingleton(tokenStorage);
+        services.AddSingleton(client);
 
         // Логирование
         AppLogger.Configure();
@@ -33,10 +35,27 @@ public static class ServiceCollectionExtensions
             .AddHttpMessageHandler<AuthHeaderHandler>();
 
         // Сервисы домена
+        services.AddSingleton<ShellHost>();
         services.AddSingleton<ISessionService, SessionService>();
-        services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<INotificationService, NotificationService>();
+        
+        //Ролевая политика
+        services.AddSingleton<IPolicy, ClerkPolicy>();
+        services.AddSingleton<IPolicy, AdminPolicy>();
+        services.AddSingleton<IPolicy, DirectorPolicy>();
+        services.AddSingleton<IPolicyFactory, PolicyFactory>();
+        
+        //Навигация
+        services.AddScoped<StartupRegionState>();
+        services.AddScoped<MenuRegionState>();
 
+        services.AddScoped<StartupShellViewModel>();
+        services.AddScoped<MenuShellViewModel>();
+
+        services.AddScoped<INavigationService<StartupRegionState>, NavigationService<StartupRegionState>>();
+        services.AddScoped<INavigationService<MenuRegionState>, NavigationService<MenuRegionState>>();
+        
+        //Сервисы
         services.AddTransient<IDictionariesService, DictionariesService>();
         services.AddTransient<IAuthService, AuthService>();
         services.AddTransient<IUserService, UserService>();
@@ -46,15 +65,20 @@ public static class ServiceCollectionExtensions
 
 
         // ViewModel-и
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<ValidateOtpViewModel>();
+        services.AddTransient<UserEditViewModel>();
+        services.AddTransient<PdfViewModel>();
+        services.AddTransient<UserListViewModel>();
         services.AddTransient<UploadDocumentViewModel>();
         services.AddTransient<BaseDocumentsListViewModel>();
         services.AddTransient<DocumentsListViewModel>();
+        services.AddTransient<MyDocumentsListViewModel>();
         services.AddTransient<ProfileCreateViewModel>();
         services.AddTransient<CompanyCreateViewModel>();
         services.AddTransient<MenuShellViewModel>();
-        services.AddTransient<ShellViewModel>();
+        services.AddTransient<StartupShellViewModel>();
         services.AddTransient<LoginViewModel>();
-        services.AddTransient<PageControlViewModel>();
         services.AddTransient<RegisterViewModel>();
         services.AddTransient<ForgotPasswordViewModel>();
 

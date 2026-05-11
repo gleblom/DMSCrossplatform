@@ -3,5 +3,5 @@
              xmlns:views="clr-namespace:DMSCrossplatform.Views"
              x:Class="DMSCrossplatform.Views.MainView"
              x:CompileBindings="False">
-    <views:ShellView />
+    <views:StartupShellView />
 </UserControl>

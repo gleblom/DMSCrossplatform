@@ -10,10 +10,13 @@
         <AndroidPackageFormat>apk</AndroidPackageFormat>
         <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     </PropertyGroup>
+	<ItemGroup>
+		<AndroidNativeLibrary Include="Platforms/Android/lib/arm64-v8a/libpdfium.so" />
+		<AndroidNativeLibrary Include="Platforms/Android/lib/armeabi-v7a/libpdfium.so" />
+	</ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia.Android"/>
-        <PackageReference Include="Material.Avalonia" />
+        <PackageReference Include="Avalonia.Android" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
@@ -24,10 +27,11 @@
         <PackageReference Include="NLog" />
         <PackageReference Include="NLog.Extensions.Logging" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
-        <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen"/>
+        <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" />
+        <PackageReference Include="Xamarin.AndroidX.Credentials" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DMSCrossplatform\DMSCrossplatform.csproj"/>
+        <ProjectReference Include="..\DMSCrossplatform\DMSCrossplatform.csproj" />
     </ItemGroup>
 </Project>

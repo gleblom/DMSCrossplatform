@@ -5,46 +5,21 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DMSCrossplatform.Infrastructure.Navigation;
 
-public class NavigationService : INavigationService
+
+public sealed class NavigationService<TState> : INavigationService<TState>
+    where TState : ViewState
 {
-    private readonly IServiceProvider _provider;
-    private readonly Stack<ViewModelBase> _back = new();
+    private readonly IServiceProvider _sp;
+    private readonly TState _state;
 
-    public ViewModelBase? Current { get; private set; }
-    public bool CanGoBack => _back.Count > 0;
-
-    public event EventHandler? CurrentChanged;
-
-    
-    public NavigationService(IServiceProvider provider) => _provider = provider;
-
-    public void NavigateTo<TViewModel>() where TViewModel : ViewModelBase
+    public NavigationService(IServiceProvider sp, TState state)
     {
-        TViewModel vm;
-        try
-        {
-            vm = _provider.GetRequiredService<TViewModel>();
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new InvalidOperationException(
-                $"Failed to resolve view model '{typeof(TViewModel).Name}'. " +
-                "Make sure it and all its dependencies are registered in the DI container.", ex);
-        }
-        NavigateTo(vm);
+        _sp = sp;
+        _state = state;
     }
 
-    public void NavigateTo(ViewModelBase vm)
+    public void NavigateTo<TViewModel>() where TViewModel : class
     {
-        if (Current is not null) _back.Push(Current);
-        Current = vm;
-        CurrentChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    public void GoBack()
-    {
-        if (!CanGoBack) return;
-        Current = _back.Pop();
-        CurrentChanged?.Invoke(this, EventArgs.Empty);
+        _state.CurrentViewModel = _sp.GetRequiredService<TViewModel>();
     }
 }

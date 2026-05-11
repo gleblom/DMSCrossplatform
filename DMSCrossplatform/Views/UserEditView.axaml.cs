@@ -6,11 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DMSCrossplatform.Views;
 
-public partial class PageControlView : ContentPage
+public partial class UserEditView : UserControl
 {
-    public PageControlView()
+    public UserEditView()
     {
         InitializeComponent();
-        DataContext = App.Services.GetRequiredService<PageControlViewModel>();
+
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json;
 
 namespace DMSCrossplatform.Models.Dto;
@@ -24,7 +26,7 @@ public class RoleReadDto
 public class UnitCreateDto
 {
     [JsonProperty("name")] public string Name { get; set; } = string.Empty;
-    [JsonProperty("company_ids")] public List<Guid> CompanyIds { get; set; } = new();
+    [JsonProperty("company_ids")] public List<Guid?> CompanyIds { get; set; } = new();
 }
 
 public class UnitUpdateDto
@@ -33,11 +35,13 @@ public class UnitUpdateDto
     [JsonProperty("company_ids")] public List<Guid>? CompanyIds { get; set; }
 }
 
-public class UnitReadDto
+public class UnitReadDto: ObservableObject
 {
     [JsonProperty("id")] public int Id { get; set; }
     [JsonProperty("name")] public string Name { get; set; } = string.Empty;
     [JsonProperty("company_ids")] public List<Guid> CompanyIds { get; set; } = new();
+
+
 }
 
 public class RoleCategoryDto

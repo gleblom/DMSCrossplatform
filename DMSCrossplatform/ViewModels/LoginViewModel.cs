@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -6,8 +8,10 @@ using DMSCrossplatform.Infrastructure;
 using DMSCrossplatform.Infrastructure.Api;
 using DMSCrossplatform.Infrastructure.Navigation;
 using DMSCrossplatform.Infrastructure.Validation;
+using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace DMSCrossplatform.ViewModels;
 
@@ -15,9 +19,12 @@ public partial class LoginViewModel : ViewModelBase
 {
     private readonly IAuthService _auth;
     private readonly ISessionService _session;
-    private readonly INavigationService _navigation;
+    private readonly INavigationService<StartupRegionState>  _navigation;
     private readonly AppSettings _settings;
     private readonly ILogger<LoginViewModel> _log;
+    private readonly ShellHost _shellHost;
+    private readonly IWebAuthnClient _webAuthnClient;
+    
 
     [ObservableProperty] private string _email = string.Empty;
     [ObservableProperty] private string _password = string.Empty;
@@ -27,14 +34,17 @@ public partial class LoginViewModel : ViewModelBase
 
     private int _failedAttempts;
 
-    public LoginViewModel(IAuthService auth, ISessionService session, INavigationService nav,
-        AppSettings settings, ILogger<LoginViewModel> log)
+    public LoginViewModel(IAuthService auth, ISessionService session, 
+        ShellHost shellHost, INavigationService<StartupRegionState> nav,
+        AppSettings settings, ILogger<LoginViewModel> log, IWebAuthnClient webAuthnClient)
     {
         _auth = auth;
         _session = session;
+        _shellHost = shellHost;
         _navigation = nav;
         _settings = settings;
         _log = log;
+        _webAuthnClient = webAuthnClient;
     }
 
     [RelayCommand]
@@ -57,18 +67,40 @@ public partial class LoginViewModel : ViewModelBase
         try
         {
             IsBusy = true;
-            var token = await _auth.LoginAsync(Email, Password);
-            await _session.SignInAsync(Email, token);
+            var userToken = _auth.LoginAsync(Email, Password);
+
+            await Task.WhenAll(userToken);
+
+
+            if (string.IsNullOrEmpty(userToken.Result.RefreshToken))
+            {
+                _session.CurrentUser = new UserFullDto
+                {
+                    Email = Email
+                };
+                _session.AccessToken = userToken.Result.AccessToken;
+                _navigation.NavigateTo<ValidateOtpViewModel>();
+                return;
+            }
+            
+            await _session.SignInAsync(Email, userToken.Result);
             _failedAttempts = 0;
             _session.CurrentUser = await _auth.GetMeAsync();
-            if(_session.CurrentUser.RoleId == 1 && _session.CurrentUser.CompanyId == null)
+
+            if (_session.CurrentUser.RoleId == 1 && _session.CurrentUser.CompanyId == null)
+            {
                 _navigation.NavigateTo<CompanyCreateViewModel>();
-        
-            if(_session.CurrentUser.FirstName == null || 
-               _session.CurrentUser.SecondName == null  ||
-               _session.CurrentUser.ThirdName == null )
+                return;
+            }
+
+            if (_session.CurrentUser.FirstName == null ||
+                _session.CurrentUser.SecondName == null ||
+                _session.CurrentUser.ThirdName == null)
+            {
                 _navigation.NavigateTo<ProfileCreateViewModel>();
-            _navigation.NavigateTo<MenuShellViewModel>();
+                 return;
+            }
+            _shellHost.ShowMenu();
         }
         catch (ApiException ex)
         {
@@ -83,7 +115,7 @@ public partial class LoginViewModel : ViewModelBase
             }
             else
             {
-                ErrorMessage = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                ErrorMessage = ex.StatusCode == HttpStatusCode.Unauthorized
                     ? "Неверный email или пароль."
                     : ex.Message;
             }
@@ -97,6 +129,43 @@ public partial class LoginViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task PasskeySignIn()
+    {
+        ErrorMessage = null;
+        try
+        {
+            IsBusy = true;
+            var webautn = await _auth.WebauthnLoginOptionsAsync();
+
+            var jsonOptions = JsonSerializer.Serialize(webautn.Options);
+            var osResponse = await _webAuthnClient.AuthenticateAsync(jsonOptions);
+
+            var userToken = await _auth.WebauthnLoginFinishAsync(new WebAuthnFinishRequestDto
+            {
+                ChallengeId = webautn.ChallengeId,
+                Credential = JToken.Parse(osResponse)
+            });
+            await _session.SignInAsync(Email, userToken);
+            _session.CurrentUser = await _auth.GetMeAsync();
+            _shellHost.ShowMenu();
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = "Ошибка при входе с помощью ключа безопасности";
+            _log.LogWarning(ex, "Ошибка регистрации ключа безопасности");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Login unexpected error");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+        
     }
 
     [RelayCommand]

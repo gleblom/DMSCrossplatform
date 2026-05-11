@@ -14,7 +14,7 @@ namespace DMSCrossplatform.ViewModels;
 public partial class ForgotPasswordViewModel : ViewModelBase
 {
     private readonly IAuthService _auth;
-    private readonly INavigationService _nav;
+    private readonly INavigationService<StartupRegionState> _nav;
     private readonly ILogger<ForgotPasswordViewModel> _log;
     private readonly AppSettings _settings;
 
@@ -30,7 +30,7 @@ public partial class ForgotPasswordViewModel : ViewModelBase
     private int _attempts;
 
     public ForgotPasswordViewModel(IAuthService auth, 
-        INavigationService nav, 
+        INavigationService<StartupRegionState> nav, 
         AppSettings settings,
         ILogger<ForgotPasswordViewModel> log)
     {
@@ -103,5 +103,5 @@ public partial class ForgotPasswordViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Cancel() => _nav.GoBack();
+    private void Cancel() => _nav.NavigateTo<LoginViewModel>();
 }

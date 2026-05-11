@@ -1,0 +1,48 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:CompileBindings="False"
+             x:DataType="viewModels:ValidateOtpViewModel"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
+             x:Class="DMSCrossplatform.Views.ValidateOtpView">
+    <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
+        <Border Height="64"
+                Margin="0, 50"
+                VerticalAlignment="Top">
+            <avalonia:MaterialIcon 
+                Kind="ArchiveLock"
+                Width="72"
+                Height="72"
+                Foreground="#4CAF50"/>
+        </Border>
+        <ScrollViewer Margin="0,128,0,0"
+                      VerticalScrollBarVisibility="Auto">
+        <Border Padding="24" MaxWidth="350" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Background="{DynamicResource DmsSurfaceColor}" CornerRadius="12">
+            <StackPanel Spacing="12">
+                <TextBlock Text="Двухфакторная аутентификация" FontSize="22" FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource DmsForegroundBrush}" />
+                <TextBlock Text="Откройте приложение для двухфакторной аутентификации на вашем мобильном устройстве и введите одноразовый код" FontSize="14" 
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource DmsForegroundBrush}" />
+                <TextBox PlaceholderText ="Код подтверждения" 
+                         MaxLength="6"
+                         Text="{Binding Token}" />
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="{DynamicResource DmsErrorBrush}"
+                           IsVisible="{Binding ErrorMessage, 
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <Button Content="Войти" HorizontalAlignment="Stretch"
+                        Background="{DynamicResource DmsPrimaryBrush}" 
+                        Foreground="{DynamicResource DmsForegroundBrush}"
+                        Command="{Binding SignInCommand}" IsEnabled="{Binding !IsBusy}" />
+                <Button Command="{Binding CancelCommand}"
+                        Content="Назад"
+                        Classes="Flat">
+                </Button>
+            </StackPanel>
+        </Border>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -12,11 +12,11 @@ namespace DMSCrossplatform.ViewModels;
 
 public partial class CompanyCreateViewModel: ViewModelBase
 {
-    private readonly INavigationService _nav;
     private readonly IUserService _userService;
     private readonly ICompanyService _companyService;
     private readonly ILogger<RegisterViewModel> _log;
     private readonly ISessionService _sessionService;
+    private readonly ShellHost _shellHost;
     
     [ObservableProperty] private string? _errorMessage;
     [ObservableProperty] private bool _isBusy;
@@ -26,13 +26,13 @@ public partial class CompanyCreateViewModel: ViewModelBase
     public CompanyCreateViewModel(
         ICompanyService companyService, 
         IUserService userService, 
-        INavigationService nav, 
+        ShellHost shellHost, 
         ILogger<RegisterViewModel> log,
         ISessionService sessionService)
     {
         _companyService = companyService;
         _userService = userService;
-        _nav = nav;
+        _shellHost = shellHost;
         _log = log;
         _sessionService = sessionService;
     }
@@ -67,7 +67,7 @@ public partial class CompanyCreateViewModel: ViewModelBase
                     RoleId = _sessionService.CurrentUser.RoleId
                 });
                 
-                _nav.NavigateTo<ShellViewModel>();
+                _shellHost.ShowMenu();
 
             }
             catch (ApiException ex)

@@ -13,7 +13,7 @@ public class AuthService : IAuthService
 
     public AuthService(IApiClient api) => _api = api;
 
-    public Task<UserReadDto> RegisterDirectorAsync(UserCreateDto dto, CancellationToken ct = default)
+    public Task<UserReadDto> RegisterAsync(UserCreateDto dto, CancellationToken ct = default)
         => _api.PostJsonAsync<UserCreateDto, UserReadDto>("/api/auth/register", dto, ct);
 
     public Task<UserTokenDto> LoginAsync(string email, string password, CancellationToken ct = default)
@@ -47,4 +47,28 @@ public class AuthService : IAuthService
 
     public Task ConfirmEmailAsync(string token, CancellationToken ct = default)
         => _api.GetAsync<object>($"/api/auth/confirm-email?token={System.Uri.EscapeDataString(token)}", ct);
+    
+    public Task<OtpDto> GenerateOtpAsync(CancellationToken ct = default)
+        => _api.PostJsonAsync<object, OtpDto>("/api/auth/otp/generate", new { }, ct);
+    
+    public Task ConfirmOtpAsync(OtpVerifyDto otp, CancellationToken ct = default)
+        => _api.PostJsonAsync<object>("/api/auth/otp/confirm", new {token = otp.Token, otp_base32 = otp.OtpBase32}, ct);
+    
+    public Task<UserTokenDto> ValidateOtpAsync(OtpVerifyDto otp, CancellationToken ct = default)
+        => _api.PostJsonAsync<object, UserTokenDto>("/api/auth/otp/validate", new { token = otp.Token, otp_base32 = otp.OtpBase32}, ct);
+
+    public Task DisableOtpAsync(CancellationToken ct = default)
+        => _api.PostJsonAsync<object>("/api/auth/opt/validate", new {}, ct);
+
+    public Task<WebAuthnOptionsResponseDto> WebauthnRegisterOptionsAsync(CancellationToken ct = default)
+        => _api.PostJsonAsync<object, WebAuthnOptionsResponseDto>("/api/auth/webauthn/register/options", new {}, ct);
+
+    public Task WebauthnRegisterFinishAsync(WebAuthnFinishRequestDto finishDto, CancellationToken ct = default)
+        => _api.PostJsonAsync<WebAuthnFinishRequestDto, object>("/api/auth/webauthn/register/finish", finishDto, ct);
+
+    public Task<WebAuthnLoginOptionsResponseDto> WebauthnLoginOptionsAsync(CancellationToken ct = default)
+        => _api.PostJsonAsync<object, WebAuthnLoginOptionsResponseDto>("/api/auth/webauthn/login/options", new { }, ct);
+
+    public Task<UserTokenDto> WebauthnLoginFinishAsync(WebAuthnFinishRequestDto finishDto, CancellationToken ct = default)
+        => _api.PostJsonAsync<WebAuthnFinishRequestDto, UserTokenDto>("/api/auth/webauthn/login/finish", finishDto, ct);
 }

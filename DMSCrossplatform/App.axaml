@@ -16,6 +16,17 @@
                               PrimaryColor="LightGreen"
                               SecondaryColor="LightGreen" />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"></StyleInclude>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource DmsSurfaceBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DmsForegroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="18"></Setter>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+        <Style Selector="DataGridColumnHeader:pointerover /template/ Grid#HeaderRoot">
+            <Setter Property="Background" Value="{DynamicResource DmsSurfaceBrush}"/>
+        </Style>
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>

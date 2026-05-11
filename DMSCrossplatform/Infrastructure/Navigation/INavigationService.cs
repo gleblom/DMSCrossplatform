@@ -3,12 +3,8 @@ using DMSCrossplatform.ViewModels;
 
 namespace DMSCrossplatform.Infrastructure.Navigation;
 
-public interface INavigationService
+public interface INavigationService<TState>
+    where TState : ViewState
 {
-    ViewModelBase? Current { get; }
-    event EventHandler? CurrentChanged;
-    void NavigateTo<TViewModel>() where TViewModel : ViewModelBase;
-    void NavigateTo(ViewModelBase viewModel);
-    bool CanGoBack { get; }
-    void GoBack();
+    void NavigateTo<TViewModel>() where TViewModel : class;
 }

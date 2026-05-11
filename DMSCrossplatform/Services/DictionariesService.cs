@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using DMSCrossplatform.Infrastructure.Api;
@@ -12,8 +13,16 @@ public class DictionariesService: IDictionariesService
     private readonly IApiClient _api;
     public DictionariesService(IApiClient api) => _api = api;
 
+    public ObservableCollection<RoleReadDto> Roles { get; set; }
+    public ObservableCollection<UnitReadDto> Units { get; set; }
+
     public async Task<IReadOnlyList<RoleReadDto>> GetRolesAsync(CancellationToken ct = default)
-        => await _api.GetAsync<List<RoleReadDto>>("/api/dictionaries/roles", ct);
+    {
+      var roles = await _api.GetAsync<List<RoleReadDto>>("/api/dictionaries/roles", ct);
+      
+      Roles = new ObservableCollection<RoleReadDto>(roles);
+      return Roles;
+    }
 
     public Task<RoleReadDto> CreateRoleAsync(RoleCreateDto dto, CancellationToken ct = default)
         => _api.PostJsonAsync<RoleCreateDto, RoleReadDto>("/api/dictionaries/roles", dto, ct);
@@ -25,7 +34,11 @@ public class DictionariesService: IDictionariesService
         => _api.DeleteAsync($"/api/dictionaries/roles/{id}", ct);
 
     public async Task<IReadOnlyList<UnitReadDto>> GetUnitsAsync(CancellationToken ct = default)
-        => await _api.GetAsync<List<UnitReadDto>>("/api/dictionaries/units", ct);
+    {
+        var units = await _api.GetAsync<List<UnitReadDto>>("/api/dictionaries/units", ct);
+        Units = new ObservableCollection<UnitReadDto>(units);
+        return Units;
+    }
 
     public Task<UnitReadDto> CreateUnitAsync(UnitCreateDto dto, CancellationToken ct = default)
         => _api.PostJsonAsync<UnitCreateDto, UnitReadDto>("/api/dictionaries/units", dto, ct);
@@ -50,8 +63,8 @@ public class DictionariesService: IDictionariesService
         => await _api.PostJsonAsync<RoleCategoryDto, List<RoleCategoryReadDto>>(
             "/api/dictionaries/update/role_categories", dto, ct);
     
-    public async Task<IReadOnlyList<RoleCategoryReadDto>> GetRoleCategoriesAsync(CancellationToken ct = default)
-        => await _api.GetAsync<List<RoleCategoryReadDto>>("/api/dictionaries/role_categories", ct);
+    public async Task<IReadOnlyList<RoleCategoryReadDto>> GetRoleCategoriesAsync(int? id, CancellationToken ct = default)
+        => await _api.GetAsync<List<RoleCategoryReadDto>>($"/api/dictionaries/role_categories/{id}", ct);
     
     public async Task<IReadOnlyCollection<SimpleDto>> GetCategoriesAsync(CancellationToken ct = default)
         => await _api.GetAsync<List<SimpleDto>>("/api/dictionaries/categories", ct);

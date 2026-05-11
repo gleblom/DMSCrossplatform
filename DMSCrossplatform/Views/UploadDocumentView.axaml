@@ -1,13 +1,15 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:CompileBindings="False"
+             x:Name="UploadControl"
              x:DataType="viewModels:UploadDocumentViewModel"
              xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
              xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
              x:Class="DMSCrossplatform.Views.UploadDocumentView">
-        <Grid>
+        <Grid Background="{DynamicResource DmsBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -15,7 +17,7 @@
         </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition MaxWidth="400" Width="3*"/>
+                <ColumnDefinition MaxWidth="{OnPlatform Default='500', Android='300'}" Width="3*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
         <!-- Заголовок -->
@@ -68,6 +70,25 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
+                    </StackPanel>
+                </controls:Card>
+                <controls:Card>
+                    <custom:MultiSelectComboBoxView 
+                        Margin="10,0,0,0"
+                        DataContext="{Binding Units}"
+                        Width="300"/>
+                </controls:Card>
+                
+                <controls:Card Padding="4">
+                    <StackPanel>
+                        <TextBlock Text="Срок действия документа"
+                                   FontWeight="SemiBold"
+                                   FontSize="16"/>
+                        <DatePicker 
+                            Width="200"
+                            assists:TextFieldAssist.Label="До"
+                            SelectedDate="{Binding ToDate, Mode=TwoWay}">
+                        </DatePicker>
                     </StackPanel>
                 </controls:Card>
 
@@ -135,7 +156,7 @@
         <Border Grid.Row="2"   Grid.Column="1"
                 BorderThickness="1,0,0,0"
                 Padding="16">
-            <StackPanel Orientation="Horizontal" 
+            <StackPanel Orientation="Vertical" 
                         HorizontalAlignment="Center"
                         Spacing="12">
                 
@@ -145,6 +166,11 @@
                         Padding="24,12"
                         MinWidth="180">
                 </Button>
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource DmsErrorBrush}"
+                           IsVisible="{Binding ErrorMessage,
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
             </StackPanel>
         </Border>
         

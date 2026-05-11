@@ -5,21 +5,26 @@ using DMSCrossplatform.Infrastructure.Navigation;
 using DMSCrossplatform.Services;
 
 namespace DMSCrossplatform.ViewModels;
-
-public partial class ShellViewModel: ViewModelBase
+public sealed class StartupRegionState : ViewState { }
+public partial class StartupShellViewModel: ViewModelBase
 {
-    private readonly INavigationService _navigation;
+    private readonly INavigationService<StartupRegionState>  _navigation;
     private readonly ISessionService _session;
     private readonly IAuthService _auth;
+    private readonly ShellHost _shellHost;
+    public StartupRegionState Region { get; }
 
-    [ObservableProperty] private ViewModelBase? _currentView;
-
-    public ShellViewModel(INavigationService navigation, ISessionService session, IAuthService auth)
+    public StartupShellViewModel(
+        StartupRegionState region, 
+        ShellHost shellHost,
+        INavigationService<StartupRegionState> navigation, 
+        ISessionService session, IAuthService auth)
     {
+        Region = region;
+        _shellHost = shellHost;
         _auth = auth;
         _navigation = navigation;
         _session = session;
-        _navigation.CurrentChanged += (_, _) => CurrentView = _navigation.Current;
         _session.AuthStateChanged += OnAuthStateChanged;
         
         session.LoadStoredAsync();
@@ -41,16 +46,16 @@ public partial class ShellViewModel: ViewModelBase
 
         await Task.WhenAll(LoadUserInfo());
         
-        if(_session.CurrentUser.RoleId == 1 && _session.CurrentUser.CompanyId == null)
+        if(_session.CurrentUser?.RoleId == 1 && _session.CurrentUser.CompanyId == null)
             _navigation.NavigateTo<CompanyCreateViewModel>();
         
         if(_session.CurrentUser.FirstName == null  || 
            _session.CurrentUser.SecondName == null  ||
            _session.CurrentUser.ThirdName == null )
             _navigation.NavigateTo<ProfileCreateViewModel>();
+        _shellHost.ShowMenu();
 
-        _navigation.NavigateTo<MenuShellViewModel>();
-        _navigation.CurrentChanged -= (_, _) => CurrentView = _navigation.Current;
+        
         
     }
 }

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace DMSCrossplatform.Views;
 
-public partial class ShellView : UserControl
+public partial class StartupShellView : UserControl
 {
-    public ShellView()
+    public StartupShellView()
     {
         InitializeComponent();
     }

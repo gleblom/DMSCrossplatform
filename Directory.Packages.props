@@ -7,17 +7,22 @@
     <!-- Avalonia packages -->
     <!-- Important: keep version in sync! -->
     <PackageVersion Include="Avalonia" Version="12.0.1" />
+    <PackageVersion Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.1" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.1" />
+    <PackageVersion Include="AvaloniaGraphControl" Version="0.7.0" />
     <PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.0.1" />
     <PackageVersion Include="Avalonia.iOS" Version="12.0.1" />
     <PackageVersion Include="Avalonia.Browser" Version="12.0.1" />
     <PackageVersion Include="Avalonia.Android" Version="12.0.1" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageVersion Include="Docnet.Core" Version="2.6.0" />
+    <PackageVersion Include="DSInternals.Win32.WebAuthn" Version="2.1.0" />
     <PackageVersion Include="Material.Avalonia" Version="3.16.0" />
     <PackageVersion Include="Material.Avalonia.DataGrid" Version="3.16.0" />
     <PackageVersion Include="Material.Icons.Avalonia" Version="3.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
@@ -27,8 +32,12 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.5-beta1" />
     <PackageVersion Include="NLog" Version="6.1.2" />
     <PackageVersion Include="NLog.Extensions.Logging" Version="6.1.2" />
+    <PackageVersion Include="QRCoder" Version="1.8.0" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.2" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="11.0.0-preview.3.26207.106" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
+    <PackageVersion Include="Xamarin.AndroidX.Credentials" Version="1.6.0" />
     <PackageVersion Include="Xaml.Behaviors.Avalonia" Version="12.0.0" />
   </ItemGroup>
 </Project>

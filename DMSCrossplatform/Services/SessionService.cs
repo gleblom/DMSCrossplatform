@@ -17,40 +17,44 @@ public class SessionService : ISessionService
     private readonly AppSettings _settings;
     private readonly ILogger<SessionService> _log;
 
-    private string? _accessToken;
-    private string? _refreshToken;
     private string? _email;
+    
+    public string? RefreshToken { get; set; }
+
+    public string? AccessToken { get; set; }
 
     public UserFullDto? CurrentUser { get; set; }
-    public bool IsAuthenticated => !string.IsNullOrEmpty(_accessToken);
+    public bool IsAuthenticated => !string.IsNullOrEmpty(AccessToken);
 
     public event EventHandler? AuthStateChanged;
 
     public SessionService(ITokenStorage storage, AppSettings settings, ILogger<SessionService> log)
     {
-
+        
         _storage = storage;
         _settings = settings;
         _log = log;
     }
+    
+    public Task<string?> GetAccessTokenAsync() => Task.FromResult(AccessToken);
 
-    public Task<string?> GetAccessTokenAsync() => Task.FromResult(_accessToken);
-
+    public void ClearAccessToken() => AccessToken = null;
+    
     public async Task LoadStoredAsync()
     {
         var session = await _storage.GetActiveAsync();
         if (session is null) return;
         _email = session.Email;
-        _accessToken = session.AccessToken;
-        _refreshToken = session.RefreshToken;
+        AccessToken = session.AccessToken;
+        RefreshToken = session.RefreshToken;
         AuthStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task SignInAsync(string email, UserTokenDto token)
     {
         _email = email;
-        _accessToken = token.AccessToken;
-        _refreshToken = token.RefreshToken;
+        AccessToken = token.AccessToken;
+        RefreshToken = token.RefreshToken;
         await _storage.SaveAsync(new StoredSession(email, token.AccessToken, token.RefreshToken, token.TokenType));
         await _storage.SetActiveAsync(email);
         AuthStateChanged?.Invoke(this, EventArgs.Empty);
@@ -61,21 +65,21 @@ public class SessionService : ISessionService
         if (_email is not null)
             await _storage.RemoveAsync(_email);
         _email = null;
-        _accessToken = null;
-        _refreshToken = null;
+        AccessToken = null;
+        RefreshToken = null;
         CurrentUser = null;
         await _storage.ClearActiveAsync();
-        AuthStateChanged?.Invoke(this, EventArgs.Empty);
+        // AuthStateChanged?.Invoke(this, EventArgs.Empty);
     }
     
 
     public async Task<bool> TryRefreshAsync(CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(_refreshToken) || _email is null) return false;
+        if (string.IsNullOrEmpty(RefreshToken) || _email is null) return false;
         try
         {
             using var http = new HttpClient { BaseAddress = new Uri(_settings.ApiBaseUrl) };
-            var body = JsonConvert.SerializeObject(new { refresh_token_value = _refreshToken });
+            var body = JsonConvert.SerializeObject(new { refresh_token_value = RefreshToken });
             using var req = new HttpRequestMessage(HttpMethod.Post, "/api/auth/refresh")
             {
                 Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json")

@@ -8,7 +8,7 @@
              xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
              xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
              x:Class="DMSCrossplatform.Views.DocumentsListView">
-<OnPlatform>
+    <OnPlatform>
         <!--Android-->
     <OnPlatform.Android>
         <Grid>
@@ -36,8 +36,7 @@
 
                 <!-- Автор -->
                <Border                  
-                   Background="{DynamicResource DmsSurfaceBrush}"
-                   IsVisible="{Binding IsAVisible}">
+                   Background="{DynamicResource DmsSurfaceBrush}">
                 <custom:MultiSelectComboBoxView
                     Margin="20, 0, 20, 20"
                     DataContext="{Binding AuthorMultiSelect}"
@@ -46,11 +45,9 @@
                 
                 <!-- Категория -->
                 <Border 
-                    Background="{DynamicResource DmsSurfaceBrush}"
-                    IsVisible="{Binding IsSVisible}">
+                    Background="{DynamicResource DmsSurfaceBrush}">
                     <custom:MultiSelectComboBoxView 
-                        DataContext="{Binding CategoryMultiSelect}"
-                        Width="150"/>
+                        DataContext="{Binding CategoryMultiSelect}" Width="150"/>
                 </Border>
 
                </StackPanel>
@@ -191,7 +188,20 @@
                             <TextBox 
                                 Width="300"
                                 PlaceholderText="Поиск"
+                                MaxLength="32"
                                 Text="{Binding SearchQuery, Mode=TwoWay}">
+                                <TextBox.InnerRightContent>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Classes="Flat" Padding="4"
+                                                Command="{Binding SearchCommand}"
+                                                Width="{Binding $self.Bounds.Height}" 
+                                                Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
+                                        <Button Classes="Flat" Padding="4"
+                                                Command="{Binding ClearCommand}"
+                                                Width="{Binding $self.Bounds.Height}" 
+                                                Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
+                                    </StackPanel>
+                                </TextBox.InnerRightContent>
                             </TextBox>
                         </StackPanel>
                     </controls:Card>
@@ -238,15 +248,16 @@
         <DataGrid x:Name="DocumentGrid" 
                   Background="{DynamicResource DmsBackgroundBrush}"
                   Grid.Row="1"
-                  ItemsSource="{Binding FilteredDocuments}"
+                  ItemsSource="{Binding Documents}"
                   SelectionMode="Single"
                   IsReadOnly="True"
                   SelectedItem="{Binding SelectedDocument}">
+            
             <DataGrid.Columns >
-                <DataGridTextColumn Header="Название" Binding="{Binding Title}"/>
-                <DataGridTextColumn Header="Категория" Binding="{Binding Category}" />
-                <DataGridTextColumn Header="Дата загрузки" Binding="{Binding CreatedAt, StringFormat=d}" />
-                <DataGridTextColumn Header="Автор" Binding="{Binding FullName}"/>
+                <DataGridTextColumn Header="Название" Width="*" Binding="{Binding Title}"/>
+                <DataGridTextColumn Header="Категория" Width="*" Binding="{Binding CategoryName}" />
+                <DataGridTextColumn Header="Дата загрузки" Width="*" Binding="{Binding CreatedAt, StringFormat=d}" />
+                <DataGridTextColumn Header="Автор" Width="*" Binding="{Binding FullName}"/>
             </DataGrid.Columns>
         </DataGrid>
         </Grid>

@@ -13,7 +13,7 @@ namespace DMSCrossplatform.ViewModels;
 
 public partial class ProfileCreateViewModel: ViewModelBase
 {
-    private readonly INavigationService _nav;
+    private readonly INavigationService<StartupRegionState> _nav;
     private readonly ILogger<RegisterViewModel> _log;
     private readonly IUserService _userService;
     private readonly ISessionService _sessionService;
@@ -26,7 +26,7 @@ public partial class ProfileCreateViewModel: ViewModelBase
     [ObservableProperty] private bool _isBusy;
 
     public ProfileCreateViewModel(
-        INavigationService nav, 
+        INavigationService<StartupRegionState> nav, 
         ILogger<RegisterViewModel> log, IUserService userService, 
         ISessionService sessionService,
         IAuthService auth)

@@ -31,13 +31,21 @@
                          
                          Text="{Binding Password}" PasswordChar="•" />
                 <TextBlock Text="{Binding ErrorMessage}" 
+                           TextWrapping="Wrap"
                            Foreground="{DynamicResource DmsErrorBrush}"
-                           IsVisible="{Binding ErrorMessage, 
+                           IsVisible="{Binding ErrorMessage,
                            Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 <Button Content="Войти" HorizontalAlignment="Stretch"
                         Background="{DynamicResource DmsPrimaryBrush}" 
                         Foreground="{DynamicResource DmsForegroundBrush}"
                         Command="{Binding SignInCommand}" IsEnabled="{Binding !IsBusy}" />
+                
+                <TextBlock Text="Или" TextAlignment="Center"></TextBlock>
+                
+                <Button Command="{Binding PasskeySignInCommand}" 
+                        Background="{DynamicResource DmsPrimaryBrush}" 
+                        Content="Войти по ключу доступа" Foreground="{DynamicResource DmsForegroundBrush}" ></Button>
+                
                 <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
                     <Button Content="Зарегистрироваться" Classes="Flat"
                             Command="{Binding GoToRegisterCommand}" />

@@ -1,0 +1,280 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+             xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
+             x:CompileBindings="False"
+             x:DataType="vm:MyDocumentsListViewModel"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:dto="clr-namespace:DMSCrossplatform.Models.Dto"
+             x:Class="DMSCrossplatform.Views.MyDocumentsListView">
+    <OnPlatform>
+        <OnPlatform.Android>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                                    <ScrollViewer IsVisible="{Binding !IsLoading}" Grid.Row="0" 
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Vertical" Margin="16,8,16,16">
+                
+                <!-- Поиск -->
+                <controls:Card Padding="4">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox 
+                            Width="290"
+                            assists:TextFieldAssist.Label="Поиск"
+                            Text="{Binding SearchQuery, Mode=TwoWay}">
+                        </TextBox>
+                    </StackPanel>
+                </controls:Card>
+                <StackPanel Orientation="Horizontal">
+
+                <!-- Статус -->
+               <Border Background="{DynamicResource DmsSurfaceBrush}">
+                <custom:MultiSelectComboBoxView
+                    Margin="20, 0, 20, 20"
+                    DataContext="{Binding StatusMultiSelect}"
+                    Width="150"/>
+               </Border>
+                
+                <!-- Категория -->
+                <Border 
+                    Background="{DynamicResource DmsSurfaceBrush}"
+                    IsVisible="{Binding IsSVisible}">
+                    <custom:MultiSelectComboBoxView 
+                        DataContext="{Binding CategoryMultiSelect}"
+                        Width="150"/>
+                </Border>
+
+               </StackPanel>
+
+
+                <!-- Дата загрузки -->
+                <StackPanel Orientation="Horizontal" Margin="4" Spacing="10">
+                    
+                    <controls:Card Padding="4" >
+                        <DatePicker
+                            Width="135"
+                            assists:TextFieldAssist.Label="От"
+
+                            SelectedDate="{Binding FromDate, Mode=TwoWay}">
+                            
+                            <DatePicker.Styles>
+                                <Style Selector="DatePicker">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </DatePicker.Styles>
+                        </DatePicker>
+                    </controls:Card>
+                    
+                    <TextBlock Text="—" VerticalAlignment="Center" Foreground="#666"/>
+                    
+                    <controls:Card Padding="4" >
+                        <DatePicker 
+                            Width="135"
+                            assists:TextFieldAssist.Label="До"
+                            SelectedDate="{Binding ToDate, Mode=TwoWay}">
+                            <DatePicker.Styles>
+                                <Style Selector="DatePicker">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </DatePicker.Styles>
+                        </DatePicker>
+                    </controls:Card>
+                    
+                </StackPanel>
+                
+            </StackPanel>
+            
+        </ScrollViewer>
+            
+            <!-- Список документов -->
+        <ScrollViewer Grid.Row="1" Margin="16,0,16,16">
+            <ItemsControl ItemsSource="{Binding FilteredDocuments}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Карточка документа -->
+                        <controls:Card Margin="0,0,0,8">
+                            <Button Command="{Binding $parent[UserControl].DataContext.OpenDocumentCommand}"
+                                    CommandParameter="{Binding}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Styles>
+                                    <Style Selector="Button">
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                    </Style>
+                                </Button.Styles>
+                                
+                                <Grid ColumnDefinitions="*,Auto" Margin="16">
+                                    <!-- Основная информация -->
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <TextBlock Text="{Binding Title}" 
+                                                   FontWeight="Bold" 
+                                                   FontSize="16"
+                                                   TextWrapping="Wrap"/>
+                                        
+                                        <StackPanel Orientation="Horizontal" Spacing="16">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <avalonia:MaterialIcon 
+                                                    Kind="Folder" 
+                                                    Width="14" 
+                                                    Height="14"/>
+                                                <TextBlock Text="{Binding Category}" FontSize="12"/>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <avalonia:MaterialIcon 
+                                                    Kind="Calendar" 
+                                                    Width="14" 
+                                                    Height="14"/>
+                                                <TextBlock Text="{Binding CreatedAt, StringFormat='dd.MM.yyyy'}" 
+                                                           FontSize="12"/>
+                                            </StackPanel>      
+                                        
+                                           <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <TextBlock Text="                                                    " 
+                                                           FontSize="12"/>
+                                           </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    
+                                    <!-- Иконка открытия -->
+                                    <avalonia:MaterialIcon 
+                                        Grid.Column="1"
+                                        Kind="ExportVariant" 
+                                        Width="15"
+                                        Height="15"
+                                        VerticalAlignment="Center"/>
+                                </Grid>
+                            </Button>
+                        </controls:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>      
+            
+            <Border Grid.Row="0" Grid.RowSpan="2"
+                IsVisible="{Binding IsLoading}"
+                 Background="#80000000"
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch">
+                <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="16">
+                    <ProgressBar Width="50" Height="50" 
+                             IsIndeterminate="True"
+                             Classes="circular"
+                             IsVisible="{Binding IsLoading}"/>
+                    <TextBlock Text="Открытие документа..." FontSize="14"/>
+                </StackPanel>
+            </Border>
+    
+            </Grid>
+        </OnPlatform.Android>
+                <On Options="Default">
+            
+            <Grid Background="{DynamicResource DmsBackgroundBrush}" RowDefinitions="Auto,*">
+                <StackPanel Orientation="Horizontal"  Grid.Row="0" Margin="8,32,0,10">
+                    
+                    <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox 
+                                Width="300"
+                                PlaceholderText="Поиск"
+                                Text="{Binding SearchQuery, Mode=TwoWay}">
+                                <TextBox.InnerRightContent>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Classes="Flat" Padding="4"
+                                                Command="{Binding SearchCommand}"
+                                                Width="{Binding $self.Bounds.Height}" 
+                                                Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
+                                        <Button Classes="Flat" Padding="4"
+                                                Command="{Binding ClearCommand}"
+                                                Width="{Binding $self.Bounds.Height}" 
+                                                Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
+                                    </StackPanel>
+                                </TextBox.InnerRightContent>
+                            </TextBox>
+                        </StackPanel>
+                    </controls:Card>
+                    
+                    <Border>
+                        <custom:MultiSelectComboBoxView
+                            Margin="10,0,0,0"
+                            DataContext="{Binding StatusMultiSelect}"
+                            Width="150"/>
+                    </Border>
+                    
+                    <Border>
+                        <custom:MultiSelectComboBoxView 
+                            Margin="10,0,0,0"
+                            DataContext="{Binding CategoryMultiSelect}"
+                            Width="150"/>
+                    </Border>
+                    <!-- Дата загрузки -->
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="4,0" >
+                        <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                            <DatePicker
+                                Width="200"
+                                assists:TextFieldAssist.Label="От"
+                                SelectedDate="{Binding FromDate, Mode=TwoWay}">
+                            </DatePicker>
+                        </controls:Card>
+                    
+                        <TextBlock Text="—" VerticalAlignment="Center"/>
+                    
+                        <controls:Card Padding="4"
+                                       Background="{DynamicResource DmsSurfaceBrush}">
+                            <DatePicker 
+                                Width="200"
+                                assists:TextFieldAssist.Label="До"
+                                SelectedDate="{Binding ToDate, Mode=TwoWay}">
+                            </DatePicker>
+                        </controls:Card>
+                    </StackPanel>
+
+                </StackPanel>
+                
+            <DataGrid x:Name="DocumentGrid" 
+                    Background="{DynamicResource DmsBackgroundBrush}"
+                    Grid.Row="1"
+                    ItemsSource="{Binding Documents}"
+                    SelectionMode="Single"
+                    IsReadOnly="True"
+                    SelectedItem="{Binding SelectedDocument}">
+                <DataGrid.Columns >
+                    <DataGridTextColumn Header="Название" Width="2*" Binding="{Binding Title}"/>
+                    <DataGridTextColumn Header="Категория" Width="2*" Binding="{Binding CategoryName}" />
+                    <DataGridTextColumn Header="Дата загрузки" Width="2*" Binding="{Binding CreatedAt, StringFormat=d}" />
+                    <DataGridTextColumn Header="Статус" Width="2*" Binding="{Binding StatusName}"/>
+                    <DataGridTemplateColumn Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="vm:MyDocumentsListViewModel">
+                                <DropDownButton Classes="flat" 
+                                                Foreground="{DynamicResource DmsForegroundBrush}"
+                                                Background="{DynamicResource DmsBackgroundBrush}">
+                                    <avalonia:MaterialIcon Width="25" Height="25" Kind="DotsHorizontal"></avalonia:MaterialIcon> 
+                                    <DropDownButton.Flyout>
+                                        <MenuFlyout Placement="Bottom">
+                                            <Button></Button>
+                                            <MenuItem Header="Item 2"/>
+                                            <MenuItem Header="Item 3" />
+                                        </MenuFlyout>
+                                    </DropDownButton.Flyout>
+                                </DropDownButton>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            </Grid>
+        </On>   
+    </OnPlatform>
+</UserControl>

@@ -4,6 +4,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,16 +13,20 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
+        <PackageReference Include="AvaloniaGraphControl" />
         <PackageReference Include="AvaloniaUI.DiagnosticsSupport">
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" />
+        <PackageReference Include="Docnet.Core" />
         <PackageReference Include="Material.Avalonia" />
         <PackageReference Include="Material.Avalonia.DataGrid" />
         <PackageReference Include="Material.Icons.Avalonia" />
+        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
@@ -31,6 +36,9 @@
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="NLog" />
         <PackageReference Include="NLog.Extensions.Logging" />
+        <PackageReference Include="QRCoder" />
+        <PackageReference Include="SkiaSharp" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
         <PackageReference Include="Xaml.Behaviors.Avalonia" />
     </ItemGroup>

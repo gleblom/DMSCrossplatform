@@ -1,0 +1,101 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:CompileBindings="False"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:assists="clr-namespace:Material.Styles.Assists;assembly=Material.Styles"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:views="clr-namespace:DMSCrossplatform.Views"
+             xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
+             x:Class="DMSCrossplatform.Views.UserListView">
+
+    <Grid Background="{DynamicResource DmsBackgroundBrush}" RowDefinitions="Auto,*">
+        <StackPanel Orientation="Horizontal"  Margin="8,32,0,10">
+            <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox
+                        Width="300"
+                        PlaceholderText="Поиск"
+                        MaxLength="32"
+                        Text="{Binding SearchQuery, Mode=TwoWay}">
+                        <TextBox.InnerRightContent>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Classes="Flat" Padding="4"
+                                        Command="{Binding SearchCommand}"
+                                        Width="{Binding $self.Bounds.Height}" 
+                                        Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
+                                <Button Classes="Flat" Padding="4"
+                                        Command="{Binding ClearCommand}"
+                                        Width="{Binding $self.Bounds.Height}" 
+                                        Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
+                            </StackPanel>
+                        </TextBox.InnerRightContent>
+                    </TextBox>
+                </StackPanel>
+            </controls:Card>
+            
+            <Border >
+                <custom:MultiSelectComboBoxView 
+                    Margin="10,0,0,0"
+                    DataContext="{Binding Roles}"
+                    Width="150"/>
+            </Border>
+            
+            <Border IsVisible="{Binding CanSeeUnits}">
+                <custom:MultiSelectComboBoxView 
+                    Margin="10,0,0,0"
+                    DataContext="{Binding Units}"
+                    Width="150"/>
+            </Border>
+            <Button  Command="{Binding TogglePaneCommand}"
+                     Classes="flat"
+                     HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal">
+                        <avalonia:MaterialIcon Kind="AccountAdd" Width="25"/>
+                        <TextBlock Margin="10" FontSize="18" Text="Новый пользователь"></TextBlock>
+                    </StackPanel>
+            </Button>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <SplitView 
+                PanePlacement="Right"
+                DisplayMode="Inline"
+                IsPaneOpen="{Binding IsPaneOpen, Mode=TwoWay}">
+                <SplitView.Content>
+                    <Grid RowDefinitions="*,Auto">
+                        <DataGrid
+                            ItemsSource="{Binding Users}"
+                            AutoGenerateColumns="False"
+                            SelectionMode="Single"
+                            SelectionChanged="DataGrid_OnSelectionChanged"
+                            IsReadOnly="True"
+                            CanUserSortColumns="True"
+                            
+                            SelectedItem="{Binding SelectedUser}">
+                            
+                            <DataGrid.Columns>
+                                <DataGridTextColumn FontSize="18" Header="ФИО" Binding="{Binding FullName}" Width="*"/>
+                                <DataGridTextColumn FontSize="18" Header="Должность" Binding="{Binding RoleName}" Width="*"/>
+                                <DataGridTextColumn FontSize="18" IsVisible="{Binding CanSeeUnits}" Header="Отдел" Binding="{Binding UnitName}" Width="*"/>
+                                <DataGridTextColumn FontSize="18" Header="Email" Binding="{Binding Email}" Width="*"/>
+                                <DataGridTextColumn FontSize="18" Header="Дата добавления" Binding="{Binding CreatedAt, StringFormat=d}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel Background="{DynamicResource DmsSurfaceBrush}"  Orientation="Horizontal" Grid.Row="1">
+                            <TextBlock FontSize="18" FontWeight="Bold" Text="Всего сотрудников:"></TextBlock>
+                            <TextBlock FontSize="18" FontWeight="Bold" Text="{Binding Users.Count}"></TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </SplitView.Content>
+                <SplitView.Pane>
+                    <StackPanel Background="{DynamicResource DmsSurfaceBrush}">
+                        <Button HorizontalAlignment="Right" Command="{Binding TogglePaneCommand}" Classes="flat">
+                            <avalonia:MaterialIcon Kind="Close" Width="20"></avalonia:MaterialIcon>
+                        </Button>
+                        <ContentControl Content="{Binding UserEditViewModel}"></ContentControl>
+                    </StackPanel>
+                </SplitView.Pane>
+            </SplitView>
+        </Grid>   
+    </Grid>
+</UserControl>
