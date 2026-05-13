@@ -3,13 +3,13 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using AvaloniaApplication1.Pdf.Abstractions;
+using DMSCrossplatform.Pdf.Abstractions;
 using Docnet.Core;
 using Docnet.Core.Models;
 using Docnet.Core.Readers;
 using SkiaSharp;
 
-namespace AvaloniaApplication1.Pdf.Rendering;
+namespace DMSCrossplatform.Pdf.Rendering;
 
 public sealed class DocnetRasterizer : IPdfPageRasterizer
 {

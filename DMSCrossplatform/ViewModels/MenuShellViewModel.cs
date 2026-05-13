@@ -26,13 +26,13 @@ public partial class MenuShellViewModel : ViewModelBase
     [ObservableProperty] private string _role;
     [ObservableProperty] private SettingsViewModel _settings;
     [ObservableProperty] private bool _isOpen;
-    
+
     public MenuRegionState Region { get; }
-    
+
     public MenuShellViewModel(
         ISessionService sessionService,
         MenuRegionState region,
-        INavigationService<MenuRegionState> navigation, 
+        INavigationService<MenuRegionState> navigation,
         IPolicyFactory policyFactory, ShellHost host, IAuthService authService)
     {
         _sessionService = sessionService;
@@ -45,6 +45,7 @@ public partial class MenuShellViewModel : ViewModelBase
 
         CanSeeEmployees = _policy.CanSeeEmployees;
         CanSeeDocs = _policy.CanSeeDocs;
+        CanSeeApprovalRoutes = _policy.CanSeeApprovalRoutes;
         
         FullName = sessionService.CurrentUser.FullName;
         Role = sessionService.CurrentUser.RoleName;
@@ -56,6 +57,9 @@ public partial class MenuShellViewModel : ViewModelBase
         {
             case 2:
                 _navigation.NavigateTo<UserListViewModel>();
+                break;
+            case 3:
+                _navigation.NavigateTo<ApprovalRoutesListViewModel>();
                 break;
             default:
                 _navigation.NavigateTo<DocumentsListViewModel>();
@@ -101,9 +105,16 @@ public partial class MenuShellViewModel : ViewModelBase
     {
         _navigation.NavigateTo<SettingsViewModel>();
     }
+
+    [RelayCommand]
+    private void NavigateRoutes()
+    {
+        _navigation.NavigateTo<ApprovalRoutesListViewModel>();
+    }
+
     [RelayCommand]
     private void SignOut()
-    {   
+    {
         _sessionService.SignOutAsync();
         _host.ShowStartup();
     }

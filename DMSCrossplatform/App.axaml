@@ -1,10 +1,12 @@
-﻿<Application xmlns="https://github.com/avaloniaui"
+﻿/<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DMSCrossplatform.App"
              RequestedThemeVariant="Dark"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
-             xmlns:dmsCrossplatform="clr-namespace:DMSCrossplatform">
+             xmlns:dmsCrossplatform="clr-namespace:DMSCrossplatform"
+             xmlns:converters="clr-namespace:DMSCrossplatform.Infrastructure.Converters"
+             xmlns:views="clr-namespace:DMSCrossplatform.Views">
     <Application.DataTemplates>
         <dmsCrossplatform:ViewLocator />
     </Application.DataTemplates>
@@ -33,6 +35,15 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="avares://DMSCrossplatform/Styles/Colors.axaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <converters:BoolToIconConverter x:Key="BoolToIconConverter" />
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <converters:BoolToStatusTextConverter x:Key="BoolToStatusTextConverter" />
+            <converters:ApprovalToIconConverter x:Key="ApprovalToIconConverter" />
+            <converters:ApprovalToColorConverter x:Key="ApprovalToColorConverter" />
+            <views:LevelToXConverter x:Key="LevelToXConverter" />
+            <views:StepToYConverter x:Key="StepToYConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>      

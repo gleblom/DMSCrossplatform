@@ -1,4 +1,4 @@
-﻿namespace AvaloniaApplication1.Pdf;
+﻿namespace DMSCrossplatform.Pdf;
 
 public sealed class PdfPageViewModel
 {

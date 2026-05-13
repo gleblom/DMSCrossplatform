@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:views="clr-namespace:DMSCrossplatform.Views"
+             x:DataType="vm:ApprovalRoutesListViewModel"
+             x:CompileBindings="False"
+             x:Class="DMSCrossplatform.Views.ApprovalRoutesListView">
+
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <!-- Заголовок и кнопки -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+            <TextBlock Text="Маршруты согласования"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+            <Button Command="{Binding CreateRouteCommand}"
+                    Background="{DynamicResource DmsPrimaryBrush}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <avalonia:MaterialIcon Kind="Plus" Width="20" Height="20"/>
+                    <TextBlock Text="Новый маршрут"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding RefreshCommand}"
+                    Classes="flat">
+                <avalonia:MaterialIcon Kind="Refresh" Width="20" Height="20"/>
+            </Button>
+        </StackPanel>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1" ColumnDefinitions="300,*" IsVisible="{Binding !IsLoading}">
+            <!-- Список маршрутов -->
+            <Border Grid.Column="0"
+                    BorderBrush="{DynamicResource MaterialDividerBrush}"
+                    BorderThickness="0,0,1,0"
+                    Padding="0,0,16,0">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0"
+                               Text="Список маршрутов"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12"/>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Routes}"
+                             SelectedItem="{Binding SelectedRoute}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,8"
+                                        BorderBrush="{DynamicResource MaterialDividerBrush}"
+                                        BorderThickness="0,0,0,1">
+                                    <Grid RowDefinitions="Auto,Auto">
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{Binding Name}"
+                                                   FontWeight="Medium"
+                                                   TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding Id, StringFormat='ID: {0}'}"
+                                                   FontSize="11"
+                                                   Opacity="0.7"
+                                                   Margin="0,4,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
+                        <Button Command="{Binding EditRouteCommand}"
+                                IsEnabled="{Binding SelectedRoute, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                Classes="flat">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <avalonia:MaterialIcon Kind="Edit" Width="18" Height="18"/>
+                                <TextBlock Text="Редактировать"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding DeleteRouteCommand}"
+                                IsEnabled="{Binding SelectedRoute, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                Classes="flat">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <avalonia:MaterialIcon Kind="Delete" Width="18" Height="18"/>
+                                <TextBlock Text="Удалить"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Визуализация маршрута -->
+            <Border Grid.Column="1" Padding="16,0,0,0">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0"
+                               Text="Визуализация маршрута"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12"/>
+
+                    <ScrollViewer Grid.Row="1"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto">
+                        <views:RouteGraphView DataContext="{Binding SelectedRouteGraph}"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Индикатор загрузки -->
+        <Grid Grid.Row="1" IsVisible="{Binding IsLoading}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+            <StackPanel Spacing="12" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200"/>
+                <TextBlock Text="{Binding LoadingMessage}"
+                           HorizontalAlignment="Center"
+                           Opacity="0.7"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

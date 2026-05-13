@@ -35,7 +35,7 @@ public partial class UserEditViewModel: ViewModelBase
      [ObservableProperty] private bool _canSeeUnits;
      [ObservableProperty] private bool _isRoleEditing;
      [ObservableProperty] private bool _isUnitEditing;
-     [ObservableProperty] private bool _isUserEdit;
+     [ObservableProperty] private bool _isUserEdit = false;
      [ObservableProperty] private bool _isBusy;
      [ObservableProperty] private bool _passwordEnabled;
 
@@ -101,7 +101,7 @@ public partial class UserEditViewModel: ViewModelBase
          if (SelectedUnit != null)
          {
              IsUnitEditing = true;
-             
+             Unit = SelectedUnit.Name;
          }
      }
 
@@ -283,9 +283,24 @@ public partial class UserEditViewModel: ViewModelBase
          SuccessMessage = null;
          ErrorMessage = null;
 
+         if (_policy is not DirectorPolicy)
+         {
+             if (SelectedRole == null || SelectedUnit == null)
+             {
+                 return;   
+             }
+         }
+         else
+         {
+             if (SelectedRole == null)
+             {
+                 return;   
+             }
+         }
+
          var err =
              Validators.ValidateEntityName(SelectedRole.Name, "Должность") ??
-             Validators.ValidateEntityName(SelectedUnit.Name, "Отдел") ??
+             (_policy is not DirectorPolicy ? Validators.ValidateEntityName(SelectedUnit.Name, "Отдел"): null) ??
              Validators.ValidateName(User.FirstName, "Имя") ??
              Validators.ValidateName(User.SecondName, "Фамилия") ??
              Validators.ValidateName(User.ThirdName, "Отчество") ??
@@ -332,7 +347,7 @@ public partial class UserEditViewModel: ViewModelBase
                          CompanyId = _sessionService.CurrentUser.CompanyId,
                          Id = User.UserId,
                          RoleId = SelectedRole.Id,
-                         UnitId = SelectedUnit.Id
+                         UnitId = _policy is not DirectorPolicy ? SelectedUnit.Id : null
                      });
                      SuccessMessage = "Профиль сотрудника успешно обновлен";
                      break;

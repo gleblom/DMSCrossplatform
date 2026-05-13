@@ -2,9 +2,9 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
-using AvaloniaApplication1.Pdf.Abstractions;
+using DMSCrossplatform.Pdf.Abstractions;
 
-namespace AvaloniaApplication1.Pdf.Controls;
+namespace DMSCrossplatform.Pdf.Controls;
 
 public class PdfVirtualizingViewer : UserControl
 {

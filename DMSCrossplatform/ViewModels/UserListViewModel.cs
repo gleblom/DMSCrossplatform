@@ -46,7 +46,7 @@ public partial class UserListViewModel: ViewModelBase
                 UserEditViewModel.SelectedRole = UserEditViewModel.Roles.FirstOrDefault(r => r.Id == SelectedUser.RoleId);
                 UserEditViewModel.SelectedUnit = UserEditViewModel.Units.FirstOrDefault(u => u.Id == SelectedUser.UnitId);
                 UserEditViewModel.User = value;
-                UserEditViewModel.IsUserEdit = false;
+                UserEditViewModel.IsUserEdit = true;
                 UserEditViewModel.Unit = UserEditViewModel.SelectedUnit.Name;
                 UserEditViewModel.Role = UserEditViewModel.SelectedRole.Name;
                 UserEditViewModel.LoadRoleCategories(SelectedUser.RoleId);
@@ -72,12 +72,19 @@ public partial class UserListViewModel: ViewModelBase
 
     }
 
+    [RelayCommand]
+    private void RefreshUsers()
+    {
+        _ =  LoadData();
+    }
+
     private async Task LoadData()
     {
       var users = await LoadUsers();
       Users = new ObservableCollection<UserFullDto>(_policy.Users(users.ToList()));
       await LoadRoles();
       await LoadUnits();
+      
     }
 
     [RelayCommand]
@@ -132,7 +139,7 @@ public partial class UserListViewModel: ViewModelBase
     private void TogglePane()
     {
         IsPaneOpen = !IsPaneOpen;
-        UserEditViewModel.IsUserEdit = true;
+        UserEditViewModel.IsUserEdit = false;
         SelectedUser = null;
         UserEditViewModel.User = new UserFullDto();
         UserEditViewModel.SelectedRole = null;

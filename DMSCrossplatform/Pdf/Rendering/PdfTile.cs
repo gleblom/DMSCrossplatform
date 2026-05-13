@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Media.Imaging;
 
-namespace AvaloniaApplication1.Pdf.Rendering;
+namespace DMSCrossplatform.Pdf.Rendering;
 
 public readonly record struct TileKey(int Page, int X, int Y, int ScaleBucket);
 

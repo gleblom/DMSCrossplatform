@@ -7,10 +7,10 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using AvaloniaApplication1.Pdf.Abstractions;
-using AvaloniaApplication1.Pdf.Rendering;
+using DMSCrossplatform.Pdf.Abstractions;
+using DMSCrossplatform.Pdf.Rendering;
 
-namespace AvaloniaApplication1.Pdf.Controls;
+namespace DMSCrossplatform.Pdf.Controls;
 
 public class PdfViewerControl : UserControl
 {

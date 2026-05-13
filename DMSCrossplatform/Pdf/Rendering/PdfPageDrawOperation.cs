@@ -3,7 +3,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Rendering.SceneGraph;
 
-namespace AvaloniaApplication1.Pdf.Rendering;
+namespace DMSCrossplatform.Pdf.Rendering;
 
 
 

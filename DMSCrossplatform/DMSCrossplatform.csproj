@@ -47,5 +47,8 @@
       <Compile Update="Views\Custom\MultiSelectComboBoxView.axaml.cs">
         <DependentUpon>MultiSelectComboBox.axaml</DependentUpon>
       </Compile>
+      <Compile Update="Views\ApprovalRouteEditorView.axaml.cs">
+        <DependentUpon>ApprovalRouteEditorView.axaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

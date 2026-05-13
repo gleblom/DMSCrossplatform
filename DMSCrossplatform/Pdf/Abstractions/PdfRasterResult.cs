@@ -1,4 +1,4 @@
-﻿namespace AvaloniaApplication1.Pdf.Abstractions;
+﻿namespace DMSCrossplatform.Pdf.Abstractions;
 
 public sealed class PdfRasterResult
 {

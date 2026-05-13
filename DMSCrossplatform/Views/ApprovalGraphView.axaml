@@ -1,0 +1,74 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dto="clr-namespace:DMSCrossplatform.Models.Dto"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:DataType="dto:RouteGraphDto"
+             x:CompileBindings="False"
+             x:Class="DMSCrossplatform.Views.ApprovalGraphView">
+
+    <Grid ColumnDefinitions="*,Auto">
+        <Canvas Grid.Column="0" Name="GraphCanvas" Background="Transparent"/>
+
+        <Border Grid.Column="1"
+                Name="HistoryPanel"
+                IsVisible="False"
+                BorderBrush="{DynamicResource MaterialDividerBrush}"
+                BorderThickness="1,0,0,0"
+                Padding="16"
+                MinWidth="300"
+                Background="{DynamicResource DmsSurfaceBrush}">
+            <StackPanel Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="История этапа"
+                               FontWeight="SemiBold"
+                               FontSize="16"/>
+                    <Button Name="CloseHistoryButton"
+                            Classes="flat"
+                            Click="OnCloseHistory"
+                            Padding="4">
+                        <avalonia:MaterialIcon Kind="Close" Width="16" Height="16"/>
+                    </Button>
+                </StackPanel>
+
+                <ScrollViewer MaxHeight="400">
+                    <ItemsControl Name="StepHistoryControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="dto:MvDocumentApprovalReadDto">
+                                <Border BorderBrush="{DynamicResource MaterialDividerBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="12,8"
+                                        Margin="0,0,0,8">
+                                    <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <avalonia:MaterialIcon Grid.Column="0"
+                                                                   Kind="{Binding IsApproved, Converter={StaticResource BoolToIconConverter}}"
+                                                                   Width="20"
+                                                                   Height="20"
+                                                                   Foreground="{Binding IsApproved, Converter={StaticResource BoolToColorConverter}}"/>
+
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding IsApproved, Converter={StaticResource BoolToStatusTextConverter}}"
+                                                       FontWeight="Medium"
+                                                       Margin="8,0,0,0"/>
+                                        </Grid>
+
+                                        <TextBlock Text="{Binding ApproverEmail}"
+                                                   FontSize="12"/>
+
+                                        <TextBlock Text="{Binding CreatedAt, StringFormat='dd.MM.yyyy HH:mm'}"
+                                                   FontSize="11"
+                                                   Opacity="0.7"/>
+
+                                        <TextBlock Text="{Binding Comment}"
+                                                   TextWrapping="Wrap"
+                                                   IsVisible="{Binding Comment, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

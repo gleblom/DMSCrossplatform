@@ -33,8 +33,9 @@
     <PackageVersion Include="NLog" Version="6.1.2" />
     <PackageVersion Include="NLog.Extensions.Logging" Version="6.1.2" />
     <PackageVersion Include="QRCoder" Version="1.8.0" />
-    <PackageVersion Include="SkiaSharp" Version="3.119.2" />
-    <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.3-preview.1.1" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="3.119.3-preview.1.1" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="3.119.3-preview.1.1" />
     <PackageVersion Include="System.Security.Cryptography.ProtectedData" Version="11.0.0-preview.3.26207.106" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
     <PackageVersion Include="Xamarin.AndroidX.Credentials" Version="1.6.0" />

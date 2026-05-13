@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DMSCrossplatform.Infrastructure.Api;
@@ -68,6 +69,13 @@ public class DictionariesService: IDictionariesService
     
     public async Task<IReadOnlyCollection<SimpleDto>> GetCategoriesAsync(CancellationToken ct = default)
         => await _api.GetAsync<List<SimpleDto>>("/api/dictionaries/categories", ct);
+
     public async Task<IReadOnlyCollection<SimpleDto>> GetStatusesAsync(CancellationToken ct = default)
         => await _api.GetAsync<List<SimpleDto>>("/api/dictionaries/statuses", ct);
+
+    public async Task<IReadOnlyCollection<SimpleDto>> GetUnitsSimpleAsync(CancellationToken ct = default)
+    {
+        var units = await GetUnitsAsync(ct);
+        return units.Select(u => new SimpleDto { Id = u.Id, Name = u.Name }).ToList();
+    }
 }

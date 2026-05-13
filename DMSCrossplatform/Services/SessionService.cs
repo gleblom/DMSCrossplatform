@@ -98,4 +98,6 @@ public class SessionService : ISessionService
             return false;
         }
     }
+
+    public UserFullDto? GetCurrentUser() => CurrentUser;
 }

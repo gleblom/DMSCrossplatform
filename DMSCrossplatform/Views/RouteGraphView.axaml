@@ -1,0 +1,9 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dto="clr-namespace:DMSCrossplatform.Models.Dto"
+             x:DataType="dto:RouteGraphDto"
+             x:CompileBindings="False"
+             x:Class="DMSCrossplatform.Views.RouteGraphView">
+
+    <Canvas Name="GraphCanvas" Background="Transparent"/>
+</UserControl>

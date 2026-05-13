@@ -26,6 +26,8 @@
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="NLog" />
         <PackageReference Include="NLog.Extensions.Logging" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Android" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
         <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" />
         <PackageReference Include="Xamarin.AndroidX.Credentials" />

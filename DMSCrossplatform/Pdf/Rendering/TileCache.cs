@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Media.Imaging;
 
-namespace AvaloniaApplication1.Pdf.Rendering;
+namespace DMSCrossplatform.Pdf.Rendering;
 
 public class TileCache
 {

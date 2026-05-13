@@ -1,9 +1,9 @@
 ﻿using System.IO;
-using AvaloniaApplication1.Pdf.Abstractions;
+using DMSCrossplatform.Pdf.Abstractions;
 using Docnet.Core;
 using Docnet.Core.Models;
 
-namespace AvaloniaApplication1.Pdf.Models;
+namespace DMSCrossplatform.Pdf.Models;
 
 public sealed class SimplePdfDocument : IPdfDocumentSource
 {

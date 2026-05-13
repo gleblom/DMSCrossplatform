@@ -20,4 +20,5 @@ public interface ISessionService
     Task SignInAsync(string email, UserTokenDto token);
     Task SignOutAsync();
     Task LoadStoredAsync();
+    UserFullDto? GetCurrentUser();
 }

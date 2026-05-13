@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Controls;
-using AvaloniaApplication1.Pdf.Abstractions;
+using DMSCrossplatform.Pdf.Abstractions;
 
-namespace AvaloniaApplication1.Pdf.Controls;
+namespace DMSCrossplatform.Pdf.Controls;
 
 public class PdfMultiPageViewer : UserControl
 {

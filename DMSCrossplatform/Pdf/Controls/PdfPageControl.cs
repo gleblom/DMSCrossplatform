@@ -1,6 +1,6 @@
 ﻿using Avalonia.Media;
 
-namespace AvaloniaApplication1.Pdf.Controls;
+namespace DMSCrossplatform.Pdf.Controls;
 
 public class PdfPageControl : PdfViewerControl
 {

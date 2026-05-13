@@ -82,6 +82,13 @@ public static class ServiceCollectionExtensions
         services.AddTransient<RegisterViewModel>();
         services.AddTransient<ForgotPasswordViewModel>();
 
+        // Маршруты согласования
+        services.AddTransient<ApprovalRoutesListViewModel>();
+        services.AddTransient<ApprovalRouteEditorViewModel>();
+
+        // Просмотр документа
+        services.AddTransient<DocumentViewModel>();
+
         return services;
         
  

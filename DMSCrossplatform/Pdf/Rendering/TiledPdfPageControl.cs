@@ -5,7 +5,7 @@
 // using Avalonia.Controls;
 // using Avalonia.Media;
 //
-// namespace AvaloniaApplication1.Pdf.Rendering;
+// namespace DMSCrossplatform.Pdf.Rendering;
 //
 // public class TiledPdfPageControl : Control
 // {

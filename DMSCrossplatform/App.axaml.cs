@@ -18,7 +18,8 @@ namespace DMSCrossplatform;
 public partial class App : Application
 {
     public static IServiceProvider Services { get; private set; } = default!;
-    public static DocumentFullReadDto? SelectedDocument { get; set; }
+    public static ApprovalRouteReadDto? SelectedApprovalRoute { get; set; }
+    public static Guid? SelectedDocumentId { get; set; }
     
     public static IStorageProvider? storageProvider;
 

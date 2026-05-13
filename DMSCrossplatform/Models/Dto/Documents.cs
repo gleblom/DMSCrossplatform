@@ -108,6 +108,7 @@ public class MvDocumentApprovalReadDto
     [JsonProperty("approver_id")] public Guid ApproverId { get; set; }
     [JsonProperty("approver_email")] public string ApproverEmail { get; set; } = string.Empty;
     [JsonProperty("is_approved")] public bool IsApproved { get; set; }
+    [JsonProperty("comment")] public string Comment { get; set; } = string.Empty;
 }
 public class DocumentApprovalReadDto
 {

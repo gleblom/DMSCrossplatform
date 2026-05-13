@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 
-namespace AvaloniaApplication1.Pdf.Controls;
+namespace DMSCrossplatform.Pdf.Controls;
 
 public class PdfVirtualizingPanel : Panel
 {

@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace AvaloniaApplication1.Pdf.Abstractions;
+namespace DMSCrossplatform.Pdf.Abstractions;
 
 public interface IPdfPageRasterizer
 {

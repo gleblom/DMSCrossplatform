@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DMSCrossplatform.Views.PdfViewerControl">
+
+    <Grid>
+        <Panel Name="PdfContainer"/>
+
+        <TextBlock Text="Загрузка PDF..."
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Name="LoadingText"
+                   Opacity="0.7"/>
+    </Grid>
+</UserControl>

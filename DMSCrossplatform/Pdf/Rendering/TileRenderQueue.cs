@@ -4,7 +4,7 @@
 // using System.Collections.Concurrent;
 // using System.Threading;
 //
-// namespace AvaloniaApplication1.Pdf.Rendering;
+// namespace DMSCrossplatform.Pdf.Rendering;
 //
 //
 //

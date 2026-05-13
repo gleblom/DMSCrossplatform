@@ -32,6 +32,5 @@ public interface IDictionariesService
     public Task<IReadOnlyList<RoleCategoryReadDto>> GetRoleCategoriesAsync(int? id, CancellationToken ct = default);
     public Task<IReadOnlyCollection<SimpleDto>> GetCategoriesAsync(CancellationToken ct = default);
     public Task<IReadOnlyCollection<SimpleDto>> GetStatusesAsync(CancellationToken ct = default);
-
-    
+    public Task<IReadOnlyCollection<SimpleDto>> GetUnitsSimpleAsync(CancellationToken ct = default);
 }

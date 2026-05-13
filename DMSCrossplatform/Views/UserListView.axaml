@@ -82,8 +82,11 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         <StackPanel Background="{DynamicResource DmsSurfaceBrush}"  Orientation="Horizontal" Grid.Row="1">
-                            <TextBlock FontSize="18" FontWeight="Bold" Text="Всего сотрудников:"></TextBlock>
-                            <TextBlock FontSize="18" FontWeight="Bold" Text="{Binding Users.Count}"></TextBlock>
+                            <TextBlock Margin="5" FontSize="18" FontWeight="Bold" Text="Всего сотрудников:"></TextBlock>
+                            <TextBlock Margin="5" FontSize="18" FontWeight="Bold" Text="{Binding Users.Count}"></TextBlock>
+                            <Button Command="{Binding RefreshUsersCommand}" Classes="flat">
+                                <avalonia:MaterialIcon Kind="Refresh" Width="20"></avalonia:MaterialIcon>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </SplitView.Content>

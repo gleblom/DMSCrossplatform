@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DMSCrossplatform;
 using DMSCrossplatform.Infrastructure;
 using DMSCrossplatform.Infrastructure.Api;
 using DMSCrossplatform.Infrastructure.Logging;
@@ -45,7 +46,11 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
         set
         {
             SetProperty(ref _selectedDocument, value);
-            _navigationService.NavigateTo<PdfViewModel>();
+            if (value == null)
+                return;
+
+            App.SelectedDocumentId = value.Id;
+            _navigationService.NavigateTo<DocumentViewModel>();
         } 
     }
 
