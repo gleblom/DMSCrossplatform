@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -9,106 +9,84 @@ using DMSCrossplatform.Infrastructure.Policy;
 using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
 using DMSCrossplatform.ViewModels.Custom;
-using DMSCrossplatform.Views;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace DMSCrossplatform.ViewModels;
 
-public partial class UserListViewModel: ViewModelBase
+public partial class UserListViewModel : ViewModelBase
 {
     private readonly IUserService _userService;
     private readonly IDictionariesService _dictionariesService;
     private readonly IPolicy _policy;
-    
-    [ObservableProperty] private UserEditViewModel _userEditViewModel = App.Services.GetRequiredService<UserEditViewModel>();
-    
-    [ObservableProperty] private string _searchQuery;
-    
-    [ObservableProperty] private MultiSelectViewModel<RoleReadDto> _roles;
-    [ObservableProperty] private MultiSelectViewModel<UnitReadDto> _units;
 
+    [ObservableProperty] private UserEditViewModel _userEditViewModel;
+    [ObservableProperty] private string? _searchQuery;
+    [ObservableProperty] private MultiSelectViewModel<RoleReadDto>? _roles;
+    [ObservableProperty] private MultiSelectViewModel<UnitReadDto>? _units;
     [ObservableProperty] private bool _isPaneOpen;
     [ObservableProperty] private bool _canSeeUnits;
-    
-    public Action<object> OpenEditor { get; set; }
+    [ObservableProperty] private ObservableCollection<UserFullDto> _users = new();
 
-    private UserFullDto _selectedUser;
+    private UserFullDto? _selectedUser;
 
-    public UserFullDto SelectedUser
+    public UserFullDto? SelectedUser
     {
         get => _selectedUser;
         set
         {
-            SetProperty(ref _selectedUser, value);
-            if (SelectedUser != null)
+            if (SetProperty(ref _selectedUser, value) && value is not null)
             {
-                IsPaneOpen = true;
-                UserEditViewModel.SelectedRole = UserEditViewModel.Roles.FirstOrDefault(r => r.Id == SelectedUser.RoleId);
-                UserEditViewModel.SelectedUnit = UserEditViewModel.Units.FirstOrDefault(u => u.Id == SelectedUser.UnitId);
-                UserEditViewModel.User = value;
-                UserEditViewModel.IsUserEdit = true;
-                UserEditViewModel.Unit = UserEditViewModel.SelectedUnit.Name;
-                UserEditViewModel.Role = UserEditViewModel.SelectedRole.Name;
-                UserEditViewModel.LoadRoleCategories(SelectedUser.RoleId);
+                _ = BeginEditUser(value);
             }
         }
     }
 
-    
-    [ObservableProperty] private ObservableCollection<UserFullDto> _users;
-    
     public UserListViewModel(
         IDictionariesService dictionariesService,
-        IUserService userService, IPolicyFactory factory)
+        IUserService userService,
+        UserEditViewModel userEditViewModel,
+        IPolicyFactory factory)
     {
         _dictionariesService = dictionariesService;
         _userService = userService;
-        
-        _policy = factory.CreatePolicy();
+        UserEditViewModel = userEditViewModel;
+        UserEditViewModel.Saved += OnEditorSaved;
 
+        _policy = factory.CreatePolicy();
         CanSeeUnits = _policy.CanSeeUnits;
 
         _ = LoadData();
-
     }
 
     [RelayCommand]
     private void RefreshUsers()
     {
-        _ =  LoadData();
+        _ = LoadData();
+    }
+
+    [RelayCommand]
+    private async Task Clear()
+    {
+        SearchQuery = string.Empty;
+        await LoadData();
     }
 
     private async Task LoadData()
     {
-      var users = await LoadUsers();
-      Users = new ObservableCollection<UserFullDto>(_policy.Users(users.ToList()));
-      await LoadRoles();
-      await LoadUnits();
-      
+        var users = await LoadUsers();
+        Users = new ObservableCollection<UserFullDto>(_policy.Users(users.ToList()));
+        await LoadRoles();
+        await LoadUnits();
     }
 
     [RelayCommand]
     private async Task Search()
     {
-        var units = _policy.CanSeeUnits ? Units?
-            .Items
-            .Where(i => i.IsSelected)
-            .Select(c => new UnitReadDto()
-            {
-                Id = c.Item.Id
-            })
-            .Select(c => c.Id)
-            .ToList(): null;
-        var roles = Roles?
-            .Items
-            .Where(i => i.IsSelected)
-            .Select(c => new RoleReadDto()
-            {
-                Id = c.Item.Id
-            })
-            .Select(c => c.Id)
-            .ToList();
-        var users = await LoadUsers(SearchQuery,units, roles);
+        var units = _policy.CanSeeUnits
+            ? Units?.Items.Where(i => i.IsSelected).Select(c => c.Item.Id).ToList()
+            : null;
+
+        var roles = Roles?.Items.Where(i => i.IsSelected).Select(c => c.Item.Id).ToList();
+        var users = await LoadUsers(SearchQuery, units, roles);
         Users = new ObservableCollection<UserFullDto>(_policy.Users(users.ToList()));
     }
 
@@ -120,30 +98,39 @@ public partial class UserListViewModel: ViewModelBase
     private async Task LoadRoles()
     {
         var roles = await _dictionariesService.GetRolesAsync();
-        Roles = new MultiSelectViewModel<RoleReadDto>
-        (
+        Roles = new MultiSelectViewModel<RoleReadDto>(
             _policy.Roles(roles.ToList()),
-            r => r.Name, "Должность",
-            selectAllByDefault: true
-            );
+            r => r.Name,
+            "Должность",
+            selectAllByDefault: true);
     }
 
     private async Task LoadUnits()
     {
         var units = await _dictionariesService.GetUnitsAsync();
-        Units = new MultiSelectViewModel<UnitReadDto>(units, u => u.Name, "Отдел", selectAllByDefault: true);
+        Units = new MultiSelectViewModel<UnitReadDto>(
+            _policy.Units(units.ToList()),
+            u => u.Name,
+            "Отдел",
+            selectAllByDefault: true);
     }
-
 
     [RelayCommand]
     private void TogglePane()
     {
         IsPaneOpen = !IsPaneOpen;
-        UserEditViewModel.IsUserEdit = false;
         SelectedUser = null;
-        UserEditViewModel.User = new UserFullDto();
-        UserEditViewModel.SelectedRole = null;
-        UserEditViewModel.SelectedUnit = null;
+        UserEditViewModel.BeginCreateUser();
     }
-    
+
+    private async Task BeginEditUser(UserFullDto user)
+    {
+        IsPaneOpen = true;
+        await UserEditViewModel.BeginEditUser(user);
+    }
+
+    private async void OnEditorSaved(object? sender, EventArgs e)
+    {
+        await LoadData();
+    }
 }

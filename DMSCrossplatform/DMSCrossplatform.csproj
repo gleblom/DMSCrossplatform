@@ -50,5 +50,8 @@
       <Compile Update="Views\ApprovalRouteEditorView.axaml.cs">
         <DependentUpon>ApprovalRouteEditorView.axaml</DependentUpon>
       </Compile>
+      <Compile Update="Views\RoleEditView.axaml.cs">
+        <DependentUpon>RoleEditView.axaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -12,6 +13,7 @@ using DMSCrossplatform.Services;
 using DMSCrossplatform.ViewModels;
 using DMSCrossplatform.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DMSCrossplatform;
 
@@ -31,7 +33,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-
+        Stopwatch sw = Stopwatch.StartNew();
         AppSettings settings = new();
         var tokenStorage = AppContainer.GetRequiredService<ISessionBlobStore>();
         
@@ -43,6 +45,7 @@ public partial class App : Application
         sc.AddDmsClient(settings, jsonTokenStorage, client);
         Services = sc.BuildServiceProvider();
         
+        var logger = Services.GetRequiredService<ILogger<App>>();
         var shell = Services.GetRequiredService<ShellHost>();
         shell.ShowStartup();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -52,7 +55,8 @@ public partial class App : Application
                 DataContext = shell
             };
             storageProvider =  desktop.MainWindow.StorageProvider;
-
+            sw.Stop();
+            logger.LogInformation("Время запуска: {SwElapsedMilliseconds} мс", sw.ElapsedMilliseconds);
         }
         else if (ApplicationLifetime is IActivityApplicationLifetime singleViewFactoryApplicationLifetime)
         {

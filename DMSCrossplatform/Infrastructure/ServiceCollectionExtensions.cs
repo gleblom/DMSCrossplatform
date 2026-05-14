@@ -67,6 +67,9 @@ public static class ServiceCollectionExtensions
         // ViewModel-и
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ValidateOtpViewModel>();
+        services.AddTransient<UserProfileEditViewModel>();
+        services.AddTransient<RoleEditViewModel>();
+        services.AddTransient<UnitEditViewModel>();
         services.AddTransient<UserEditViewModel>();
         services.AddTransient<PdfViewModel>();
         services.AddTransient<UserListViewModel>();
