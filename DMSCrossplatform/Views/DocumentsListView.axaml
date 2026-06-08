@@ -11,54 +11,58 @@
     <OnPlatform>
         <!--Android-->
     <OnPlatform.Android>
-        <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <ScrollViewer IsVisible="{Binding !IsLoading}" Grid.Row="0" 
-                      HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Disabled">
+        <Grid RowDefinitions="Auto,*">
+
+            <ScrollViewer IsVisible="{Binding !IsLoading}" Grid.Row="0" 
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Vertical" Margin="16,8,16,16">
                 
                 <!-- Поиск -->
-                <controls:Card Padding="4">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox 
-                            Width="290"
-                            assists:TextFieldAssist.Label="Поиск"
+                <controls:Card Margin="10" Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                    <Grid  >
+                        <TextBox
+                            PlaceholderText="Поиск"
+                            MaxLength="32"
                             Text="{Binding SearchQuery, Mode=TwoWay}">
+                            <TextBox.InnerRightContent>
+                                <StackPanel Orientation="Horizontal" >
+                                    <Button Classes="Flat" Padding="4"
+                                            Command="{Binding SearchCommand}"
+                                            Height="{Binding $self.Bounds.Width}"
+                                            Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
+                                    <Button Classes="Flat" Padding="4"
+                                            Command="{Binding ClearCommand}"
+           
+                                            Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
+                                </StackPanel>
+                            </TextBox.InnerRightContent>
                         </TextBox>
-                    </StackPanel>
+                    </Grid>
                 </controls:Card>
-                <StackPanel Orientation="Horizontal">
-
-                <!-- Автор -->
-               <Border                  
-                   Background="{DynamicResource DmsSurfaceBrush}">
-                <custom:MultiSelectComboBoxView
-                    Margin="20, 0, 20, 20"
-                    DataContext="{Binding AuthorMultiSelect}"
-                    Width="150"/>
-               </Border>
                 
-                <!-- Категория -->
-                <Border 
-                    Background="{DynamicResource DmsSurfaceBrush}">
-                    <custom:MultiSelectComboBoxView 
-                        DataContext="{Binding CategoryMultiSelect}" Width="150"/>
-                </Border>
+                <Grid Margin="5, 5,0, 5" ColumnDefinitions="*, *">
 
-               </StackPanel>
+                    <!-- Автор -->
+                    <Border>
+                        <custom:MultiSelectComboBoxView
+                            DataContext="{Binding AuthorMultiSelect}"/>
+                     </Border>
+                
+                    <!-- Категория -->
+                    <Border  Grid.Column="1">
+                        <custom:MultiSelectComboBoxView 
+                            DataContext="{Binding CategoryMultiSelect}"/>
+                     </Border>
+
+               </Grid>
 
 
                 <!-- Дата загрузки -->
-                <StackPanel Orientation="Horizontal" Margin="4" Spacing="10">
+                <Grid ColumnDefinitions="*, Auto, *" Margin="5" >
                     
                     <controls:Card Padding="4" >
                         <DatePicker
-                            Width="135"
                             assists:TextFieldAssist.Label="От"
 
                             SelectedDate="{Binding FromDate, Mode=TwoWay}">
@@ -71,11 +75,10 @@
                         </DatePicker>
                     </controls:Card>
                     
-                    <TextBlock Text="—" VerticalAlignment="Center" Foreground="#666"/>
+                    <TextBlock Grid.Column="1" Text="—" VerticalAlignment="Center" Foreground="#666"/>
                     
-                    <controls:Card Padding="4" >
+                    <controls:Card Grid.Column="2"  Padding="4" >
                         <DatePicker 
-                            Width="135"
                             assists:TextFieldAssist.Label="До"
                             SelectedDate="{Binding ToDate, Mode=TwoWay}">
                             <DatePicker.Styles>
@@ -86,7 +89,7 @@
                         </DatePicker>
                     </controls:Card>
                     
-                </StackPanel>
+                </Grid>
                 
             </StackPanel>
             
@@ -94,65 +97,75 @@
             
             <!-- Список документов -->
         <ScrollViewer Grid.Row="1" Margin="16,0,16,16">
-            <ItemsControl ItemsSource="{Binding FilteredDocuments}">
+            <ItemsControl ItemsSource="{Binding Documents}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <!-- Карточка документа -->
                         <controls:Card Margin="0,0,0,8">
-                            <Button Command="{Binding $parent[UserControl].DataContext.OpenDocumentCommand}"
-                                    CommandParameter="{Binding}"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="0">
-                                <Button.Styles>
-                                    <Style Selector="Button">
-                                        <Setter Property="Cursor" Value="Hand"/>
-                                    </Style>
-                                </Button.Styles>
-                                
-                                <Grid ColumnDefinitions="*,Auto" Margin="16">
-                                    <!-- Основная информация -->
-                                    <StackPanel Grid.Column="0" Spacing="8">
-                                        <TextBlock Text="{Binding Title}" 
-                                                   FontWeight="Bold" 
-                                                   FontSize="16"
-                                                   TextWrapping="Wrap"/>
-                                        
-                                        <StackPanel Orientation="Horizontal" Spacing="16">
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <avalonia:MaterialIcon 
-                                                    Kind="Folder" 
-                                                    Width="14" 
-                                                    Height="14"/>
-                                                <TextBlock Text="{Binding Category}" FontSize="12"/>
-                                            </StackPanel>
-                                            
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <avalonia:MaterialIcon 
-                                                    Kind="Calendar" 
-                                                    Width="14" 
-                                                    Height="14"/>
-                                                <TextBlock Text="{Binding CreatedAt, StringFormat='dd.MM.yyyy'}" 
-                                                           FontSize="12"/>
-                                            </StackPanel>      
-                                        
-                                           <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <TextBlock Text="                                                    " 
-                                                           FontSize="12"/>
-                                           </StackPanel>
-                                        </StackPanel>
-                                    </StackPanel>
+                            <Button
+                                Command="{Binding $parent[UserControl].DataContext.OpenDocumentCommand}" 
+                                CommandParameter="{Binding}" 
+                                Background="Transparent" 
+                                BorderThickness="0"
+                                Padding="0"
+                                HorizontalContentAlignment="Stretch" 
+                                VerticalContentAlignment="Stretch" >
+                                <Grid Margin="16" ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto">
                                     
-                                    <!-- Иконка открытия -->
-                                    <avalonia:MaterialIcon 
-                                        Grid.Column="1"
-                                        Kind="ExportVariant" 
-                                        Width="15"
-                                        Height="15"
-                                        VerticalAlignment="Center"/>
+                                    <avalonia:MaterialIcon Margin="2" Kind="ApplicationImport"
+                                                           Width="18"
+                                                           Height="18"/>
+                                    
+                                    <TextBlock Margin="2" Grid.Row="0" Grid.Column="1" Text="{Binding Title}"
+                                               FontWeight="Bold"
+                                               FontSize="20"
+                                               TextWrapping="Wrap"/>
+                                    
+                                    <avalonia:MaterialIcon Grid.Column="0" 
+                                                           Grid.Row="1" 
+                                                           Margin="2"
+                                                           Kind="Calendar"
+                                                           Width="16"
+                                                           Height="16"/>
+                                    <TextBlock Grid.Column="1" 
+                                               Grid.Row="1" 
+                                               FontSize="18"
+                                               Margin="2"
+                                               Text="{Binding CreatedAt, 
+                                               StringFormat='dd.MM.yyyy'}"/>
+                                    
+                                    <avalonia:MaterialIcon Grid.Column="0" 
+                                                           Grid.Row="2" 
+                                                           Margin="2"
+                                                           Kind="Folder"
+                                                           Width="16"
+                                                           Height="16"/>
+                                    
+                                    <TextBlock 
+                                        Grid.Column="1" 
+                                        Margin="2"
+                                        Grid.Row="2" 
+                                        FontSize="18"
+                                        Text="{Binding CategoryName}" />
+                                    
+                                    <avalonia:MaterialIcon Grid.Column="0" 
+                                                           Grid.Row="3" 
+                                                           Margin="2"
+                                                           Kind="Account"
+                                                           Width="16"
+                                                           Height="16"/>
+                                    <TextBlock 
+                                        Grid.Column="1" 
+                                        Margin="2"
+                                        Grid.Row="3" 
+                                        FontSize="18"
+                                        TextWrapping="Wrap"
+                                        Text="{Binding FullName}" />
+                                    
                                 </Grid>
                             </Button>
                         </controls:Card>
+                        
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -176,91 +189,109 @@
             
         </Grid>
         
-    </OnPlatform.Android>
-        <!---Desktop, Browser-->
-        <On Options="Windows, Linux, Browser">
-            
-            <Grid Background="{DynamicResource DmsBackgroundBrush}" RowDefinitions="Auto,*">
-                <StackPanel Orientation="Horizontal"  Grid.Row="0" Margin="8,32,0,10">
-                    
-                    <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox 
-                                Width="300"
-                                PlaceholderText="Поиск"
-                                MaxLength="32"
-                                Text="{Binding SearchQuery, Mode=TwoWay}">
-                                <TextBox.InnerRightContent>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Classes="Flat" Padding="4"
-                                                Command="{Binding SearchCommand}"
-                                                Width="{Binding $self.Bounds.Height}" 
-                                                Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
-                                        <Button Classes="Flat" Padding="4"
-                                                Command="{Binding ClearCommand}"
-                                                Width="{Binding $self.Bounds.Height}" 
-                                                Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
-                                    </StackPanel>
-                                </TextBox.InnerRightContent>
-                            </TextBox>
-                        </StackPanel>
-                    </controls:Card>
-                    
-                    <Border>
-                        <custom:MultiSelectComboBoxView
-                            Margin="10,0,0,0"
-                            DataContext="{Binding AuthorMultiSelect}"
-                            Width="150"/>
-                    </Border>
-                    
-                    <Border>
-                        <custom:MultiSelectComboBoxView 
-                            Margin="10,0,0,0"
-                            DataContext="{Binding CategoryMultiSelect}"
-                            Width="150"/>
-                    </Border>
-                    <!-- Дата загрузки -->
-                    <StackPanel 
-                        Orientation="Horizontal" 
-                        Margin="4,0" >
-                        <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
-                            <DatePicker
-                                Width="135"
-                                assists:TextFieldAssist.Label="От"
-                                SelectedDate="{Binding FromDate, Mode=TwoWay}">
-                            </DatePicker>
-                        </controls:Card>
-                    
-                        <TextBlock Text="—" VerticalAlignment="Center"/>
-                    
-                        <controls:Card Padding="4"
-                                       Background="{DynamicResource DmsSurfaceBrush}">
-                            <DatePicker 
-                                Width="135"
-                                assists:TextFieldAssist.Label="До"
-                                SelectedDate="{Binding ToDate, Mode=TwoWay}">
-                            </DatePicker>
-                        </controls:Card>
-                    </StackPanel>
-
-                </StackPanel>
-                
-        <DataGrid x:Name="DocumentGrid" 
-                  Background="{DynamicResource DmsBackgroundBrush}"
-                  Grid.Row="1"
-                  ItemsSource="{Binding Documents}"
-                  SelectionMode="Single"
-                  IsReadOnly="True"
-                  SelectedItem="{Binding SelectedDocument}">
-            
-            <DataGrid.Columns >
-                <DataGridTextColumn Header="Название" Width="*" Binding="{Binding Title}"/>
-                <DataGridTextColumn Header="Категория" Width="*" Binding="{Binding CategoryName}" />
-                <DataGridTextColumn Header="Дата загрузки" Width="*" Binding="{Binding CreatedAt, StringFormat=d}" />
-                <DataGridTextColumn Header="Автор" Width="*" Binding="{Binding FullName}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        </Grid>
-    </On>   
-</OnPlatform>
+     </OnPlatform.Android>
+        <!-- -Desktop, Browser -->
+    
+         <On Options="Windows, Linux, Browser" >
+    
+             <Grid Background="{DynamicResource LinearGradientBackgroundBrush}" RowDefinitions="Auto,*">
+                 <StackPanel Orientation="Horizontal"  Grid.Row="0" Margin="8,32,0,10">
+    
+                     <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                         <StackPanel Orientation="Horizontal">
+                             <TextBox
+                                 Width="300"
+                                 PlaceholderText="Поиск"
+                                 MaxLength="32"
+                                 Text="{Binding SearchQuery, Mode=TwoWay}">
+                                 <TextBox.InnerRightContent>
+                                     <StackPanel Orientation="Horizontal">
+                                         <Button Classes="Flat" Padding="4"
+                                                 Command="{Binding SearchCommand}"
+                                                 Width="{Binding $self.Bounds.Height}"
+                                                 Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
+                                         <Button Classes="Flat" Padding="4"
+                                                 Command="{Binding ClearCommand}"
+                                                 Width="{Binding $self.Bounds.Height}"
+                                                 Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
+                                     </StackPanel>
+                                 </TextBox.InnerRightContent>
+                             </TextBox>
+                         </StackPanel>
+                     </controls:Card>
+    
+                     <Border>
+                         <custom:MultiSelectComboBoxView
+                             Margin="10,0,0,0"
+                             DataContext="{Binding AuthorMultiSelect}"
+                             Width="150"/>
+                     </Border>
+    
+                     <Border>
+                         <custom:MultiSelectComboBoxView
+                             Margin="10,0,0,0"
+                             DataContext="{Binding CategoryMultiSelect}"
+                             Width="150"/>
+                     </Border>
+                     <!-- Дата загрузки -->
+                     <StackPanel
+                         Orientation="Horizontal"
+                         Margin="4,0" >
+                         <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                             <DatePicker
+                                 Width="135"
+                                 assists:TextFieldAssist.Label="От"
+                                 SelectedDate="{Binding FromDate, Mode=TwoWay}">
+                             </DatePicker>
+                         </controls:Card>
+    
+                         <TextBlock Text="—" VerticalAlignment="Center"/>
+    
+                         <controls:Card Padding="4"
+                                        Background="{DynamicResource DmsSurfaceBrush}">
+                             <DatePicker
+                                 Width="135"
+                                 assists:TextFieldAssist.Label="До"
+                                 SelectedDate="{Binding ToDate, Mode=TwoWay}">
+                             </DatePicker>
+                         </controls:Card>
+                     </StackPanel>
+    
+                 </StackPanel>
+    
+         <DataGrid x:Name="DocumentGrid"
+                   CanUserSortColumns="True"
+                   GridLinesVisibility="All"
+                   Background="{DynamicResource DmsBackgroundBrush}"
+                   Grid.Row="1"
+                   ItemsSource="{Binding Documents}"
+                   SelectionMode="Single"
+                   IsReadOnly="True"
+                   SelectedItem="{Binding SelectedDocument}">
+    
+             <DataGrid.Columns >
+                 <DataGridTextColumn Header="Название" Width="*" Binding="{Binding Title}"/>
+                 <DataGridTextColumn Header="Категория" Width="*" Binding="{Binding CategoryName}" />
+                 <DataGridTextColumn Header="Дата загрузки" Width="*" Binding="{Binding CreatedAt, StringFormat=d}" />
+                 <DataGridTextColumn Header="Автор" Width="*" Binding="{Binding FullName}"/>
+             </DataGrid.Columns>
+         </DataGrid>
+                 <Border Grid.Row="0" Grid.RowSpan="2"
+                         IsVisible="{Binding IsLoading}"
+                         Background="#80000000"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch">
+                     <StackPanel VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 Spacing="16">
+                         <ProgressBar Width="50" Height="50" 
+                                      IsIndeterminate="True"
+                                      Classes="circular"
+                                      IsVisible="{Binding IsLoading}"/>
+                         <TextBlock Text="Открытие документа..." FontSize="14"/>
+                     </StackPanel>
+                 </Border>
+         </Grid>
+     </On> 
+ </OnPlatform>
 </UserControl>

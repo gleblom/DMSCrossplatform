@@ -16,11 +16,10 @@ namespace DMSCrossplatform.Infrastructure;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDmsClient(
-        this IServiceCollection services, AppSettings settings, ITokenStorage tokenStorage, IWebAuthnClient client)
+        this IServiceCollection services, AppSettings settings)
     {
         services.AddSingleton(settings);
-        services.AddSingleton(tokenStorage);
-        services.AddSingleton(client);
+        services.AddSingleton<ITokenStorage, JsonTokenStorage>();
 
         // Логирование
         AppLogger.Configure();
@@ -42,8 +41,9 @@ public static class ServiceCollectionExtensions
         //Ролевая политика
         services.AddSingleton<IPolicy, ClerkPolicy>();
         services.AddSingleton<IPolicy, AdminPolicy>();
+        services.AddSingleton<IPolicy, UserPolicy>();
         services.AddSingleton<IPolicy, DirectorPolicy>();
-        services.AddSingleton<IPolicyFactory, PolicyFactory>();
+        services.AddScoped<IPolicyFactory, PolicyFactory>();
         
         //Навигация
         services.AddScoped<StartupRegionState>();
@@ -60,11 +60,15 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IAuthService, AuthService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ICompanyService, CompanyService>();
+        services.AddTransient<IPushService, PushService>();
         services.AddTransient<IDocumentService, DocumentService>();
         services.AddTransient<IApprovalRouteService, ApprovalRouteService>();
 
 
         // ViewModel-и
+        
+        services.AddTransient<NotificationViewModel>();
+        services.AddTransient<CameraViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ValidateOtpViewModel>();
         services.AddTransient<UserProfileEditViewModel>();

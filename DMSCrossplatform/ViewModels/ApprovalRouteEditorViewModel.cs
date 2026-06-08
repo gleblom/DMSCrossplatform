@@ -35,6 +35,7 @@ public partial class ApprovalRouteEditorViewModel : ViewModelBase
 
     [ObservableProperty] private string _routeName = string.Empty;
     [ObservableProperty] private int? _routeId;
+    [ObservableProperty] private string? _errorMessage;
     [ObservableProperty] private ObservableCollection<RouteStepViewModel> _steps = [];
     [ObservableProperty] private ObservableCollection<SimpleDto> _units = [];
     [ObservableProperty] private ObservableCollection<UserFullDto> _availableUsers = [];
@@ -275,15 +276,23 @@ public partial class ApprovalRouteEditorViewModel : ViewModelBase
     [RelayCommand]
     private async Task Save()
     {
-        if (string.IsNullOrWhiteSpace(RouteName) || Steps.Count < 2)
+        if (string.IsNullOrWhiteSpace(RouteName))
         {
             _log.LogWarning("Cannot save route: name is empty or less than 2 steps");
+            ErrorMessage = "Невозможно сохранить маршрут: Пустое имя маршрута";
             return;
         }
-        
+
+        if (Steps.Count < 2)
+        {
+            _log.LogWarning("Cannot save route:less than 2 steps");
+            ErrorMessage = "Невозможно сохранить маршрут: маршрут содержит менее двух этапов";
+            return;
+        }
         if (Steps.Any(s => !s.ApproverId.HasValue))
         {
             _log.LogWarning("Cannot save route: some steps don't have approver assigned");
+            ErrorMessage = "Невозможно сохранить маршрут: к этапу не прикреплен сотрудник";
             return;
         }
         
@@ -291,6 +300,7 @@ public partial class ApprovalRouteEditorViewModel : ViewModelBase
         if (approvers.Count != approvers.Distinct().Count())
         {
             _log.LogWarning("Cannot save route: duplicate approvers found");
+            ErrorMessage = "Невозможно сохранить маршрут: один сотрудник указан дважды";
             return;
         }
 
@@ -355,6 +365,7 @@ public partial class ApprovalRouteEditorViewModel : ViewModelBase
             }
 
             _log.LogInformation("Route saved successfully");
+            ErrorMessage = null; 
             _navigationService.NavigateTo<ApprovalRoutesListViewModel>();
         }
         catch (Exception ex)

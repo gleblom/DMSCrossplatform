@@ -3,6 +3,7 @@
              xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:icons="clr-namespace:Material.Icons;assembly=Material.Icons"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
              x:CompileBindings="False"
              x:DataType="vm:MenuShellViewModel"
              x:Class="DMSCrossplatform.Views.MenuShellView">
@@ -24,7 +25,8 @@
     
     <SplitView IsPaneOpen="{Binding IsPaneOpen}"
                DisplayMode="CompactOverlay"
-               CompactPaneLength="48"
+               CompactPaneLength="52"
+               Background="{DynamicResource LinearGradientBackgroundBrush}"
                OpenPaneLength="300">
         <SplitView.Pane>
             
@@ -37,7 +39,7 @@
         <Button IsVisible="{Binding CanSeeDocs}" Classes="flat" Command="{Binding NavigateNewDocCommand}" >
             <StackPanel Orientation="Horizontal" Spacing="3">
                 <avalonia:MaterialIcon Kind="FileDocumentAdd" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Новый документ"/>
             </StackPanel>
         </Button>
@@ -45,7 +47,7 @@
         <Button IsVisible="{Binding CanSeeDocs}" Classes="flat" Command="{Binding  NavigatePublicDocsCommand}" >
             <StackPanel Orientation="Horizontal" Spacing="3">
                 <avalonia:MaterialIcon Kind="FileDocumentBoxSearch" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Все документы"/>
             </StackPanel>
         </Button>
@@ -53,23 +55,33 @@
         <Button IsVisible="{Binding CanSeeDocs}" Classes="flat" Command="{Binding NavigateMyDocsCommand}">
             <StackPanel Orientation="Horizontal" Spacing="3">
                 <avalonia:MaterialIcon Kind="FileAccountOutline" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Мои документы"/>
             </StackPanel>
         </Button>
         
-        <Button IsVisible="{Binding CanSeeDocs}" Command="{Binding NavigateIncomingDocsCommand}" Classes="flat" >
+        <!-- <Button IsVisible="{Binding CanSeeDocs}" Command="{Binding NavigateIncomingDocsCommand}" Classes="flat" > -->
+        <!--     <StackPanel Orientation="Horizontal" Spacing="3"> -->
+        <!--         <avalonia:MaterialIcon Kind="InboxArrowDownOutline" Width="25" Height="25"/> -->
+        <!--         <TextBlock Margin="15,10" HorizontalAlignment="Center" -->
+        <!--                    Text="Входящие"/> -->
+        <!--     </StackPanel> -->
+        <!-- </Button> -->
+        
+        <Button Command="{Binding NavigateNotificationsCommand}" IsVisible="{Binding IsNotificationsVisible}" Classes="flat">
             <StackPanel Orientation="Horizontal" Spacing="3">
-                <avalonia:MaterialIcon Kind="InboxArrowDownOutline" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
-                           Text="Входящие"/>
+                <controls:Badged BadgePlacement="TopLeft" BadgeContent="{Binding NotificationsCount}" BadgeFontSize="12">
+                    <avalonia:MaterialIcon  Width="25" Height="25" Kind="Bell" />
+                </controls:Badged>
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
+                           Text="Уведомления"/>
             </StackPanel>
         </Button>
         
         <Button IsVisible="{Binding CanSeeEmployees}" Command="{Binding NavigateDirectorCommand}" Classes="flat" >
             <StackPanel Orientation="Horizontal" Spacing="3">
                 <avalonia:MaterialIcon Kind="UserSupervisorCircle" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Управление сотрудниками"/>
             </StackPanel>
         </Button>
@@ -77,68 +89,73 @@
         <Button IsVisible="{Binding CanSeeApprovalRoutes}" Command="{Binding NavigateRoutesCommand}" Classes="flat" >
             <StackPanel Orientation="Horizontal" Spacing="3">
                 <avalonia:MaterialIcon Kind="Map" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Маршруты согласования"/>
             </StackPanel>
         </Button>
         
-        <Button IsVisible="{OnPlatform Android='True'}" Command="{Binding NavigateSettingsCommand}" Classes="flat">
+        <Button Command="{Binding NavigateSettingsCommand}" Classes="flat">
             <StackPanel Orientation="Horizontal" Spacing="3">
                 <avalonia:MaterialIcon Kind="Settings" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Настройки"/>
             </StackPanel>
         </Button>
         
-        <Button Command="{Binding SignOutCommand}" Classes="flat">
+        <Button Command="{Binding NavigateScannerCommand}" Classes="flat">
             <StackPanel Orientation="Horizontal" Spacing="3">
-                <avalonia:MaterialIcon Kind="SignOut" Width="25" Height="25"/>
-                <TextBlock Margin="10,10" HorizontalAlignment="Center"
-                           Text="Выход"/>
+                <avalonia:MaterialIcon Kind="BarcodeScanner" Width="25" Height="25"/>
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
+                           Text="Сканер документов"/>
             </StackPanel>
         </Button>
         
         
         
+        
+        <Button Command="{Binding SignOutCommand}" Classes="flat">
+            <StackPanel Orientation="Horizontal" Spacing="3">
+                <avalonia:MaterialIcon Kind="SignOut" Width="25" Height="25"/>
+                <TextBlock Margin="15,10" HorizontalAlignment="Center"
+                           Text="Выход"/>
+            </StackPanel>
+        </Button>
+        
     </StackPanel>
         </SplitView.Pane>
         <SplitView.Content>
-            <Grid RowDefinitions="Auto,*">
-                <Border Padding="12">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <TextBlock FontWeight="Bold" TextWrapping="Wrap"
-                                   FontSize="24" VerticalAlignment="Center"
-                                   Text="Электронный архив корпоративной документации"/>
-                        
-                        <StackPanel>
-                            <ToggleButton
-                                Command="{Binding OpenCommand}" Margin="30,0"
-                                Background="{DynamicResource DmsPrimaryBrush}">
-                                
-                                <Grid RowDefinitions="Auto, *" ColumnDefinitions="Auto, *">
-                                    <TextBlock  Text="{Binding FullName}"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Role}"></TextBlock>
-                                    <Panel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
-                                        <avalonia:MaterialIcon Classes="chevron-down" Width="20" Height="20" Kind="ChevronDown" />
-                                        <avalonia:MaterialIcon Classes="up" Width="20" Height="20" Kind="ChevronUp" />
-                                    </Panel>
-                                </Grid>
-                                
-                            </ToggleButton>
-                            
-                            <Popup IsOpen="{Binding IsOpen}"  Placement="Bottom" IsLightDismissEnabled="False">
-                                <Border Padding="20">
-                                    <StackPanel>
-                                        <ContentControl Content="{Binding Settings}"></ContentControl>
-                                    </StackPanel>
-                                </Border>
-                            </Popup>
+            <SplitView
+                 PanePlacement="Right"
+                 DisplayMode="Inline"
+                 IsPaneOpen="{Binding IsNotificationPaneOpen, Mode=TwoWay}">
+                <SplitView.Content>
+                    <Grid RowDefinitions="Auto,*" ColumnDefinitions="*, Auto">
+                        <Border Padding="12">
+                            <Grid Grid.ColumnDefinitions="*, Auto" HorizontalAlignment="Left">
+                                <TextBlock FontWeight="Bold" TextWrapping="Wrap"
+                                           FontSize="24" VerticalAlignment="Center"
+                                           Text="Электронный архив корпоративной документации"/>
+                                <Button Grid.Column="1" Command="{Binding ToggleNotificationPaneCommand}" IsVisible="{OnPlatform Android='False', Default='True'}" Classes="flat">
+                                    <controls:Badged BadgeContent="{Binding NotificationsCount}" BadgeFontSize="15">
+                                        <avalonia:MaterialIcon  Width="25" Height="25" Kind="Bell" />
+                                    </controls:Badged>
+                                </Button>
+                            </Grid>
+                        </Border>
+                        <ContentControl Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Stretch"  Content="{Binding Region.CurrentViewModel}" />
+                    </Grid>
+                </SplitView.Content>
+                <SplitView.Pane>
+                    <ScrollViewer>
+                        <StackPanel Background="{DynamicResource DmsSurfaceBrush}">
+                            <Button HorizontalAlignment="Right" Command="{Binding ToggleNotificationPaneCommand}" Classes="flat">
+                                <avalonia:MaterialIcon Kind="Close" Width="20"></avalonia:MaterialIcon>
+                            </Button>
+                            <ContentControl Content="{Binding Notification}"></ContentControl>
                         </StackPanel>
-                        
-                    </StackPanel>
-                </Border>
-                <ContentControl  Grid.Row="1" VerticalContentAlignment="Stretch"  Content="{Binding Region.CurrentViewModel}" />
-            </Grid>
+                    </ScrollViewer>
+                </SplitView.Pane>
+            </SplitView>
         </SplitView.Content>
     </SplitView>
 </UserControl>

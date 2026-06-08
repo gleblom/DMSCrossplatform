@@ -7,6 +7,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using DMSCrossplatform.Models.Dto;
+using DMSCrossplatform.ViewModels;
 
 namespace DMSCrossplatform.Views;
 
@@ -24,6 +25,15 @@ public partial class ApprovalGraphView : UserControl
     private const double LeftMargin = 24;
     private const double TopMargin = 16;
 
+    public static readonly StyledProperty<RouteGraphDto> GraphDataProperty =
+        AvaloniaProperty.Register<ApprovalGraphView, RouteGraphDto>(nameof(GraphData));
+
+    public RouteGraphDto GraphData
+    {
+        get => GetValue(GraphDataProperty);
+        set => SetValue(GraphDataProperty, value);
+    }
+    
     public DocumentFullReadDto? Document
     {
         get => GetValue(DocumentProperty);
@@ -42,16 +52,19 @@ public partial class ApprovalGraphView : UserControl
         DataContextChanged += OnDataContextChanged;
         PropertyChanged += OnPropertyChanged;
     }
+    
 
     private void OnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.Property == DocumentProperty || e.Property == ApprovalHistoryProperty)
-            DrawGraph(DataContext as RouteGraphDto);
+        if (e.Property == DocumentProperty 
+            || e.Property == ApprovalHistoryProperty
+            || e.Property == GraphDataProperty)
+            DrawGraph(GraphData);
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        DrawGraph(DataContext as RouteGraphDto);
+        DrawGraph(GraphData);
     }
 
     private void DrawGraph(RouteGraphDto? graph)
@@ -87,7 +100,7 @@ public partial class ApprovalGraphView : UserControl
             {
                 StartPoint = new Point(from.X + NodeWidth / 2, from.Y + NodeHeight),
                 EndPoint = new Point(to.X + NodeWidth / 2, to.Y),
-                Stroke = Brushes.Gray,
+                Stroke = Brushes.LightGray,
                 StrokeThickness = 2
             });
         }
@@ -128,20 +141,20 @@ public partial class ApprovalGraphView : UserControl
                     {
                         Text = string.IsNullOrWhiteSpace(node.ApproverFullName) ? "[Не назначен]" : node.ApproverFullName,
                         FontWeight = FontWeight.SemiBold,
-                        FontSize = 14,
+                        FontSize = 16,
                         TextWrapping = TextWrapping.Wrap
                     },
                     new TextBlock
                     {
                         Text = node.ApproverEmail ?? string.Empty,
-                        FontSize = 11,
+                        FontSize = 14,
                         Opacity = 0.8,
                         TextWrapping = TextWrapping.Wrap,
                     },
                     new TextBlock
                     {
                         Text = $"Этап {node.StepIndex + 1}",
-                        FontSize = 11,
+                        FontSize = 14,
                         Opacity = 0.6,
                         Margin = new Thickness(0, 6, 0, 0)
                     }
@@ -152,15 +165,17 @@ public partial class ApprovalGraphView : UserControl
 
     private (IBrush Background, IBrush Border) GetNodeBrushes(RouteGraphNodeDto node)
     {
-        var approval = ApprovalHistory?.FirstOrDefault(a => a.StepIndex == node.StepIndex);
+        var lastVersion = ApprovalHistory?.Max(a => a.VersionNumber) ?? 0;
+        var approval = ApprovalHistory?.FirstOrDefault(
+            a => a.StepIndex == node.StepIndex && a.VersionNumber == lastVersion);
 
         if (approval?.IsApproved == true)
-            return (new SolidColorBrush(Color.Parse("#2E7D32")), new SolidColorBrush(Color.Parse("#4CAF50")));
+            return (new SolidColorBrush(Color.Parse("#43b549")), new SolidColorBrush(Color.Parse("#4CAF50")));
 
         if (approval?.IsApproved == false)
-            return (new SolidColorBrush(Color.Parse("#C62828")), new SolidColorBrush(Color.Parse("#F44336")));
+            return (new SolidColorBrush(Color.Parse("#e35b5b")), new SolidColorBrush(Color.Parse("#F44336")));
 
-        return (new SolidColorBrush(Color.Parse("#424242")), new SolidColorBrush(Color.Parse("#616161")));
+        return (new SolidColorBrush(Color.Parse("#7a7a7a")), new SolidColorBrush(Color.Parse("#616161")));
     }
 
     private static Point GetNodeTopLeft(int stepIndex)

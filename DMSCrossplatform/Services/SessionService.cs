@@ -69,7 +69,6 @@ public class SessionService : ISessionService
         RefreshToken = null;
         CurrentUser = null;
         await _storage.ClearActiveAsync();
-        // AuthStateChanged?.Invoke(this, EventArgs.Empty);
     }
     
 

@@ -29,7 +29,7 @@ public class DocumentReadDto
 }
 public class DocumentFullReadDto
 {
-    [JsonProperty("id")] public Guid Id { get; set; }
+    [JsonProperty("document_id")] public Guid Id { get; set; }
     [JsonProperty("title")] public string Title { get; set; } = string.Empty;
     [JsonProperty("current_step_index")] public int CurrentStepIndex { get; set; }
     [JsonProperty("status_id")] public int StatusId { get; set; }
@@ -52,11 +52,33 @@ public class DocumentFullReadDto
     [JsonProperty("third_name")] public string ThirdName { get; set; } = string.Empty;
     
     [NotMapped]
-    public string? FullName => $"{FirstName} {SecondName} {ThirdName}";
+    public string? FullName => $"{SecondName} {FirstName} {ThirdName}";
 }
 public class DocumentSubmitDto
 {
     [JsonProperty("route_id")] public int RouteId { get; set; }
+}
+
+public class MvNotificationsDto
+{
+    [JsonProperty("body")] public string NotificationBody { get; set; } = string.Empty;
+    [JsonProperty("title")] public string Title { get; set; } = string.Empty;
+    [JsonProperty("data")] public Dictionary<string, string>? Data { get; set; } = new ();
+    [JsonProperty("is_read")] public bool IsRead { get; set; }
+    [JsonProperty("id")] public int NotificationId { get; set; }
+    [JsonProperty("document_id")] public Guid Id { get; set; }
+    [JsonProperty("created_at")] public DateTime CreatedAt { get; set; }
+
+    [NotMapped]
+    public bool IsVisible
+    {
+        get
+        {
+            if (Data == null) return false;
+            var eventType = Data["event_type"];
+            return eventType == "document_published";
+        }
+    }
 }
 
 public class CreateDocumentUnitDto
@@ -120,4 +142,9 @@ public class DocumentApprovalReadDto
     [JsonProperty("created_at")] public DateTime CreatedAt { get; set; }
     [JsonProperty("comment")] public string Comment { get; set; } = string.Empty;
     
+}
+
+public class ShareLinkDto
+{
+    [JsonProperty("share_link")] public string ShareLink { get; set; } = string.Empty;
 }

@@ -1,7 +1,7 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DMSCrossplatform.App"
-             RequestedThemeVariant="Dark"
+             RequestedThemeVariant="Light"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
              xmlns:dmsCrossplatform="clr-namespace:DMSCrossplatform"
@@ -42,6 +42,7 @@
             <converters:BoolToStatusTextConverter x:Key="BoolToStatusTextConverter" />
             <converters:ApprovalToIconConverter x:Key="ApprovalToIconConverter" />
             <converters:ApprovalToColorConverter x:Key="ApprovalToColorConverter" />
+            <converters:AddOneConverter x:Key="AddOneConverter"/>
             <views:LevelToXConverter x:Key="LevelToXConverter" />
             <views:StepToYConverter x:Key="StepToYConverter" />
         </ResourceDictionary>

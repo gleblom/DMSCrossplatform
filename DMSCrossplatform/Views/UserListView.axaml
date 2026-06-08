@@ -8,13 +8,157 @@
              xmlns:views="clr-namespace:DMSCrossplatform.Views"
              xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
              x:Class="DMSCrossplatform.Views.UserListView">
+<OnPlatform>
+    <OnPlatform.Android>
+        <Grid RowDefinitions="Auto, *">
+            <ScrollViewer>
+                <StackPanel Orientation="Vertical"  Margin="16,8,16,16">
+                    <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
+                        <Grid >
+                            <TextBox
+                                PlaceholderText="Поиск"
+                                MaxLength="32"
+                                Text="{Binding SearchQuery, Mode=TwoWay}">
+                                <TextBox.InnerRightContent>
+                                    <StackPanel Orientation="Horizontal" >
+                                        <Button Classes="Flat" Padding="4"
+                                                        Command="{Binding SearchCommand}"
+                                                        Height="{Binding $self.Bounds.Width}"
+                                                        Content="{avalonia:MaterialIconExt Search, IconSize=24}" />
+                                        <Button Classes="Flat" Padding="4"
+                                                Command="{Binding ClearCommand}"
+                                                Content="{avalonia:MaterialIconExt ClearBold, IconSize=24}" />
+                                    </StackPanel>
+                                </TextBox.InnerRightContent>
+                            </TextBox>
+                        </Grid>
+                    </controls:Card>
+                    
+                    <Grid Margin="5">
+                        <custom:MultiSelectComboBoxView 
+                            DataContext="{Binding Roles}"/>
+                    </Grid>
+            
+                    <Grid Margin="5" IsVisible="{Binding CanSeeUnits}">
+                        <custom:MultiSelectComboBoxView 
+                            DataContext="{Binding Units}"/>
+                    </Grid>
 
-    <Grid Background="{DynamicResource DmsBackgroundBrush}" RowDefinitions="Auto,*">
+                    
+                    <Grid>
+                        <Button Command="{Binding TogglePaneCommand}"
+                                Classes="flat"
+                                HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <StackPanel Orientation="Horizontal">
+                                <avalonia:MaterialIcon Kind="AccountAdd" Width="25"/>
+                                <TextBlock Margin="10" FontSize="18" Text="Новый пользователь"></TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+            
+
+            <SplitView 
+                Grid.Row="1"
+                PanePlacement="Right"
+                DisplayMode="Inline"
+                IsPaneOpen="{Binding IsPaneOpen, Mode=TwoWay}">
+                <SplitView.Content>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding Users}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:Card Margin="0,0,0,8">
+                                        <!-- Карточка пользователя -->
+                                        <Button
+                                            Command="{Binding $parent[UserControl].DataContext.OpenUserCommand}" 
+                                            CommandParameter="{Binding Id}" 
+                                            Background="Transparent" 
+                                            BorderThickness="0"
+                                            Padding="0"
+                                            HorizontalContentAlignment="Stretch" 
+                                            VerticalContentAlignment="Stretch" >
+                                            <Grid Margin="16" ColumnDefinitions="Auto, *" RowDefinitions="Auto, Auto, Auto, Auto">
+                                                <avalonia:MaterialIcon 
+                                                            Margin="2" Kind="CardAccountDetails"
+                                                            Width="18"
+                                                            Height="18"/>
+                                    
+                                                <TextBlock Margin="2" Grid.Row="0" Grid.Column="1" Text="{Binding FullName}"
+                                                           FontWeight="Bold"
+                                                           FontSize="20"
+                                                           TextWrapping="Wrap"/>
+                                                <avalonia:MaterialIcon 
+                                                    Grid.Column="0" 
+                                                    Grid.Row="1" 
+                                                    Margin="2"
+                                                    Kind="At"
+                                                    Width="16"
+                                                    Height="16"/>
+                                                <TextBlock Grid.Column="1" 
+                                                           Grid.Row="1" 
+                                                           FontSize="18"
+                                                           Margin="2"
+                                                           Text="{Binding Email}"/>
+                                    
+                                                <avalonia:MaterialIcon 
+                                                    Grid.Column="0" 
+                                                    Grid.Row="2" 
+                                                    Margin="2"
+                                                    Kind="AccountGroupOutline"
+                                                    Width="16"
+                                                    Height="16"/>
+                                    
+                                                <TextBlock 
+                                                    Grid.Column="1" 
+                                                    Margin="2"
+                                                    Grid.Row="2" 
+                                                    FontSize="18"
+                                                    Text="{Binding RoleName}" />
+                                    
+                                                <avalonia:MaterialIcon 
+                                                    Grid.Column="0" 
+                                                    Grid.Row="3" 
+                                                    Margin="2"
+                                                    Kind="HomeCityOutline"
+                                                    Width="16"
+                                                    Height="16"/>
+                                                <TextBlock 
+                                                    IsVisible="{Binding CanSeeUnits}"
+                                                    Grid.Column="1" 
+                                                    Margin="2"
+                                                    Grid.Row="3" 
+                                                    FontSize="18"
+                                                    TextWrapping="Wrap"
+                                                    Text="{Binding UnitName}" />
+                                            </Grid>
+                                        </Button>
+                                    </controls:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </SplitView.Content>
+                <SplitView.Pane>
+                    <ScrollViewer>
+                        <StackPanel Background="{DynamicResource DmsSurfaceBrush}">
+                            <Button HorizontalAlignment="Right" Command="{Binding TogglePaneCommand}" Classes="flat">
+                                <avalonia:MaterialIcon Kind="Close" Width="20"></avalonia:MaterialIcon>
+                            </Button>
+                            <ContentControl Content="{Binding UserEditViewModel}"></ContentControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </SplitView.Pane>
+                </SplitView>
+        </Grid>
+    </OnPlatform.Android>
+    <OnPlatform.Default>
+        <Grid RowDefinitions="Auto,*">
         <StackPanel Orientation="Horizontal"  Margin="8,32,0,10">
             <controls:Card Padding="4" Background="{DynamicResource DmsSurfaceBrush}">
                 <StackPanel Orientation="Horizontal">
                     <TextBox
-                        Width="300"
                         PlaceholderText="Поиск"
                         MaxLength="32"
                         Text="{Binding SearchQuery, Mode=TwoWay}">
@@ -37,15 +181,13 @@
             <Border >
                 <custom:MultiSelectComboBoxView 
                     Margin="10,0,0,0"
-                    DataContext="{Binding Roles}"
-                    Width="150"/>
+                    DataContext="{Binding Roles}"/>
             </Border>
             
             <Border IsVisible="{Binding CanSeeUnits}">
                 <custom:MultiSelectComboBoxView 
                     Margin="10,0,0,0"
-                    DataContext="{Binding Units}"
-                    Width="150"/>
+                    DataContext="{Binding Units}"/>
             </Border>
             <Button  Command="{Binding TogglePaneCommand}"
                      Classes="flat"
@@ -69,6 +211,7 @@
                             SelectionMode="Single"
                             SelectionChanged="DataGrid_OnSelectionChanged"
                             IsReadOnly="True"
+                            Background="{DynamicResource DmsBackgroundBrush}"
                             CanUserSortColumns="True"
                             
                             SelectedItem="{Binding SelectedUser}">
@@ -101,4 +244,6 @@
             </SplitView>
         </Grid>   
     </Grid>
+    </OnPlatform.Default>
+</OnPlatform>
 </UserControl>

@@ -1,0 +1,53 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
+             x:DataType="viewModels:NotificationViewModel"
+             x:Class="DMSCrossplatform.Views.NotificationView"
+             x:CompileBindings="False">
+<Grid>
+        <ScrollViewer  Margin="16,0,16,16">
+            <ItemsControl ItemsSource="{Binding Notifications}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <controls:Card Margin="0,0,0,8">
+                            <Button Command="{Binding $parent[UserControl].DataContext.OpenDocumentCommand}"
+                                    CommandParameter="{Binding Id}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0">
+                                <Button.Styles>
+                                    <Style Selector="Button">
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                    </Style>
+                                </Button.Styles>
+                                
+                                <Grid ColumnDefinitions="*,Auto" Margin="16">
+                              
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <TextBlock Text="{Binding Title}" 
+                                                   FontWeight="Bold" 
+                                                   FontSize="16"
+                                                   TextWrapping="Wrap"/>
+                 
+                                        <TextBlock TextWrapping="Wrap" Text="{Binding NotificationBody}" FontSize="14"/>
+
+
+                                        <TextBlock Text="{Binding CreatedAt, StringFormat='dd.MM.yyyy'}" 
+                                                   FontSize="14"/>
+                                    </StackPanel>
+                                    
+                                    <Button Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" Classes="flat" Foreground="Tomato" Command="{Binding $parent[UserControl].DataContext.DeleteNotificationCommand}"
+                                        IsVisible="{Binding IsVisible}" Grid.Column="1">
+                                        <avalonia:MaterialIcon HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Kind="Delete"/>
+                                    </Button>
+                                </Grid>
+                            </Button>
+                        </controls:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer> 
+</Grid>
+</UserControl>

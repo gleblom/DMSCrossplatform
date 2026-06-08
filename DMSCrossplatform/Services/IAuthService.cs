@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using DMSCrossplatform.Models.Dto;
 
@@ -28,4 +29,9 @@ public interface IAuthService
     Task<WebAuthnLoginOptionsResponseDto> WebauthnLoginOptionsAsync(CancellationToken ct = default);
     
     Task<UserTokenDto> WebauthnLoginFinishAsync(WebAuthnFinishRequestDto finishDto, CancellationToken ct = default);
+    
+    Task<PasskeyStatusDto> GetPasskeyStatusAsync(string deviceId, CancellationToken ct = default);
+    Task<IReadOnlyList<PasskeyCredentialDto>> GetPasskeysAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<string>> RevokePasskeyAsync(string credentialId, CancellationToken ct = default);
+
 }

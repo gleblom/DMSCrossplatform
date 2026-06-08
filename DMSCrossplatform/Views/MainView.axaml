@@ -1,7 +1,18 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:DMSCrossplatform.Views"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
              x:Class="DMSCrossplatform.Views.MainView"
              x:CompileBindings="False">
-    <views:StartupShellView />
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="viewModels:StartupShellViewModel">
+            <views:StartupShellView />
+        </DataTemplate>
+
+        <DataTemplate DataType="viewModels:MenuShellViewModel">
+            <views:MenuShellView />
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <ContentControl Content="{Binding CurrentShell}" />
 </UserControl>

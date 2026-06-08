@@ -10,10 +10,10 @@ using DMSCrossplatform.Pdf.Rendering;
 
 namespace DMSCrossplatform.Views;
 
-public partial class PdfViewerControl : UserControl
+public partial class PdfControl : UserControl
 {
     public static readonly StyledProperty<string?> PdfUrlProperty =
-        AvaloniaProperty.Register<PdfViewerControl, string?>(nameof(PdfUrl));
+        AvaloniaProperty.Register<PdfControl, string?>(nameof(PdfUrl));
 
     public string? PdfUrl
     {
@@ -23,7 +23,7 @@ public partial class PdfViewerControl : UserControl
 
     private PdfVirtualizingViewer? _pdfViewer;
 
-    public PdfViewerControl()
+    public PdfControl()
     {
         InitializeComponent();
         this.PropertyChanged += OnPropertyChanged;
@@ -62,20 +62,18 @@ public partial class PdfViewerControl : UserControl
             var pdfDocument = new SimplePdfDocument(tempFile);
             var rasterizer = new DocnetRasterizer(pdfBytes);
 
-            // Создаем и инициализируем viewer
-            if (_pdfViewer == null)
+ 
+            _pdfViewer = new PdfVirtualizingViewer
             {
-                _pdfViewer = new PdfVirtualizingViewer
-                {
-                    Document = pdfDocument,
-                    Rasterizer = rasterizer
-                };
+                Document = pdfDocument,
+                Rasterizer = rasterizer
+            };
 
-                PdfContainer.Children.Clear();
-                PdfContainer.Children.Add(_pdfViewer);
-            }
+
+            
 
             _pdfViewer.Init(pdfDocument);
+            PdfContainer.Content = _pdfViewer;
 
             LoadingText.IsVisible = false;
         }

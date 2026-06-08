@@ -2,11 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:dto="clr-namespace:DMSCrossplatform.Models.Dto"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             x:DataType="dto:RouteGraphDto"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
              x:CompileBindings="False"
+             x:DataType="viewModels:DocumentViewModel"
              x:Class="DMSCrossplatform.Views.ApprovalGraphView">
 
-    <Grid ColumnDefinitions="*,Auto">
+    <Grid ColumnDefinitions="*,Auto" DataContext="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=GraphData}">
         <Canvas Grid.Column="0" Name="GraphCanvas" Background="Transparent"/>
 
         <Border Grid.Column="1"

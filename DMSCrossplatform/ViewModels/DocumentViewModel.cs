@@ -1,16 +1,23 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Android.Util;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DMSCrossplatform;
+using DMSCrossplatform.Infrastructure;
 using DMSCrossplatform.Infrastructure.Logging;
 using DMSCrossplatform.Infrastructure.Navigation;
 using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
+using QRCoder;
 
 namespace DMSCrossplatform.ViewModels;
 
@@ -19,8 +26,12 @@ public partial class DocumentViewModel : ViewModelBase
     private readonly IDocumentService _documentService;
     private readonly IApprovalRouteService _approvalRouteService;
     private readonly ILogger<DocumentViewModel> _log;
+    private readonly IStorageProvider? _storageProvider;
     private readonly INavigationService<MenuRegionState> _navigationService;
     private readonly ISessionService _sessionService;
+    private readonly IDownloadSaver _downloadSaver;
+        
+    public static string? Mode = null;
 
     [ObservableProperty] private DocumentFullReadDto? _document;
     [ObservableProperty] private ObservableCollection<MvDocumentVersionReadDto> _versions = [];
@@ -30,30 +41,44 @@ public partial class DocumentViewModel : ViewModelBase
     [ObservableProperty] private RouteGraphDto? _documentRouteGraph;
     [ObservableProperty] private ObservableCollection<MvDocumentApprovalReadDto> _approvalHistory = [];
     [ObservableProperty] private bool _isLoading = true;
-    [ObservableProperty] private bool _isAuthor = false;
-    [ObservableProperty] private bool _canApprove = false;
-    [ObservableProperty] private bool _canReject = false;
-    [ObservableProperty] private bool _canSubmit = false;
-    [ObservableProperty] private bool _canUploadVersion = false;
-    [ObservableProperty] private bool _showRouteSelector = false;
-    [ObservableProperty] private bool _showRejectDialog = false;
+    [ObservableProperty] private bool _isAuthor;
+    [ObservableProperty] private bool _canApprove ;
+    [ObservableProperty] private bool _canReject;
+    [ObservableProperty] private bool _canSubmit;
+    [ObservableProperty] private bool _canDownload;
+    [ObservableProperty] private bool _canUploadVersion;
+    [ObservableProperty] private bool _showRouteSelector;
+    [ObservableProperty] private bool _showShareQr;
+    
+    [ObservableProperty] private string? _errorMessage;
+    [ObservableProperty] private bool _showRejectDialog;
+    
+    [ObservableProperty] private string? _selectedFilePath;
+    [ObservableProperty] private string? _selectedFileName;
     [ObservableProperty] private string _rejectComment = string.Empty;
     [ObservableProperty] private string? _pdfUrl;
-    [ObservableProperty] private int _selectedTabIndex = 0;
+    
+    [ObservableProperty] private int _selectedTabIndex;
+    
     [ObservableProperty] private RouteGraphDto? _selectedSubmitRouteGraph;
+    
+    [ObservableProperty] private Bitmap _qrCodeBitmap;
 
     public DocumentViewModel(
         IDocumentService documentService,
         IApprovalRouteService approvalRouteService,
         ILogger<DocumentViewModel> log,
         INavigationService<MenuRegionState> navigationService,
-        ISessionService sessionService)
+        ISessionService sessionService,
+        IDownloadSaver downloadSaver)
     {
         _documentService = documentService;
         _approvalRouteService = approvalRouteService;
         _log = log;
         _navigationService = navigationService;
+        _storageProvider = App.storageProvider;
         _sessionService = sessionService;
+        _downloadSaver = downloadSaver;
         if (App.SelectedDocumentId.HasValue)
             _ = InitializeAsync(App.SelectedDocumentId.Value);
         else
@@ -100,7 +125,7 @@ public partial class DocumentViewModel : ViewModelBase
     private async Task<DocumentFullReadDto> LoadDocumentAsync(Guid documentId)
     {
 
-        var docs = await _documentService.ListAsync();
+        var docs = await _documentService.ListAsync(mode: Mode);
         var doc = docs.FirstOrDefault(d => d.Id == documentId);
 
         if (doc == null)
@@ -132,12 +157,13 @@ public partial class DocumentViewModel : ViewModelBase
 
         IsAuthor = Document.AuthorId == currentUser.UserId;
 
-        // Статусы: 1 - черновик, 2 - на согласовании, 3 - отклонен, 4 - опубликован
-        CanSubmit = IsAuthor && Document.StatusId == 1; // Черновик
-        CanUploadVersion = IsAuthor && (Document.StatusId == 3 || Document.StatusId == 4); // Отклонен или опубликован
+        // Статусы: 1 - опубликован, 2 - черновик, 3 - на согласовании, 4 - не согласован (или отклонен)
+        CanSubmit = IsAuthor && Document.StatusId == 2; // Черновик
+        CanUploadVersion = IsAuthor && (Document.StatusId == 1 || Document.StatusId == 4) && Document.RouteId != null; // Отклонен или опубликован
+        CanDownload = (Document.StatusId == 1 || Document.StatusId == 4) && Document.RouteId != null; 
 
         // Проверяем, может ли текущий пользователь согласовывать/отклонять
-        if (Document.StatusId == 2 && Document.RouteId.HasValue) // На согласовании
+        if (Document.StatusId == 3 && Document.RouteId.HasValue) // На согласовании
         {
             try
             {
@@ -155,8 +181,9 @@ public partial class DocumentViewModel : ViewModelBase
 
                 CanApprove = approval.ApproverId == currentUser.UserId && !approval.IsApproved;
                 CanReject = approval.ApproverId == currentUser.UserId && !approval.IsApproved;
+           
             }
-            catch
+            catch(Exception ex)
             {
                 CanApprove = false;
                 CanReject = false;
@@ -237,6 +264,104 @@ public partial class DocumentViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task UploadNewVersion()
+    {
+        if (_storageProvider == null)
+        {
+                ErrorMessage = "Выбор файла недоступен";
+                return;
+        }
+
+        try
+        {
+            var options = new FilePickerOpenOptions
+            {
+                Title = "Выберите документ",
+                AllowMultiple = false,
+                FileTypeFilter =
+                [
+                    new FilePickerFileType("Документы")
+                    {
+                        Patterns = ["*.pdf"],
+                        AppleUniformTypeIdentifiers = ["com.adobe.pdf"],
+                        MimeTypes =
+                        [
+                            "application/pdf"
+                        ]
+                    }
+                ]
+            };
+
+            var files = await _storageProvider.OpenFilePickerAsync(options);
+
+            if (files.Count == 1)
+            {
+                var file = files[0];
+                SelectedFilePath = file.Path.LocalPath;
+                SelectedFileName = file.Name;
+
+                if (OperatingSystem.IsAndroid())
+                {
+                    await CopyFileForAndroidAsync(file);
+                }
+
+                if (Document.RouteId == null)
+                {
+                    ErrorMessage = $"Маршрут не прикреплен к документу";
+                    return;
+                }
+
+                var fileBytes = File.ReadAllBytes(SelectedFilePath);
+
+                var provider = new FileExtensionContentTypeProvider();
+                string contentType = provider.TryGetContentType(SelectedFilePath, out contentType)
+                    ? contentType
+                    : "application/octet-stream";
+
+
+                var doc = await _documentService.UploadVersionAsync(
+                    Document.Id, fileBytes,
+                    SelectedFileName,
+                    contentType
+                );
+
+
+
+                await _documentService.SubmitAsync(Document.Id, (int)Document.RouteId);
+                Mode = "my";
+                _ = InitializeAsync(Document.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"{ex.Message}";
+        }
+    }
+
+    private async Task CopyFileForAndroidAsync(IStorageFile file)
+    {
+
+        try
+        {
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var targetPath = Path.Combine(appDataPath, "temp_documents", file.Name);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+
+            await using var sourceStream = await file.OpenReadAsync();
+            await using var targetStream = File.Create(targetPath);
+
+            await sourceStream.CopyToAsync(targetStream);
+
+            SelectedFilePath = targetPath;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"{ex.Message}";
+        }
+    }
+
+    [RelayCommand]
     private void CancelSubmit()
     {
         ShowRouteSelector = false;
@@ -247,11 +372,21 @@ public partial class DocumentViewModel : ViewModelBase
     private async Task Approve()
     {
         if (Document == null) return;
-
+        var currentUser = _sessionService.GetCurrentUser();
+        IsAuthor = Document.AuthorId == currentUser.UserId;
         try
         {
+            var index = DocumentRouteGraph.Nodes.Last().StepIndex;
+            if (Document.CurrentStepIndex == index)
+            {
+                Mode = "all";
+            }
             await _documentService.ApproveAsync(Document.Id);
             await InitializeAsync(Document.Id);
+            if (!IsAuthor)
+            {
+                _navigationService.NavigateTo<DocumentsListViewModel>();
+            }
         }
         catch (Exception ex)
         {
@@ -294,5 +429,52 @@ public partial class DocumentViewModel : ViewModelBase
     private void Back()
     {
         _navigationService.NavigateTo<DocumentsListViewModel>();
+    }
+
+    [RelayCommand]
+    private void Download()
+    {
+        if (_storageProvider == null)
+        {
+            ErrorMessage = "Невозможно скачать файл";
+            return;
+        }
+
+        if (PdfUrl == null)
+        {
+            ErrorMessage = "URL для скачивания документа не найдена";
+            return;
+        }
+        var uri = new Uri(PdfUrl);
+        _downloadSaver
+            .SaveAsync(uri, Guid.NewGuid() + ".pdf", "application/pdf");
+
+    }
+
+    [RelayCommand]
+    private async Task Share()
+    {
+        try
+        {
+            var shareLink = await _documentService.CreateShareLink(Document.Id);
+            using var qrGenerator = new QRCodeGenerator();
+            using var qrCodeData = qrGenerator.CreateQrCode(shareLink.ShareLink, QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new PngByteQRCode(qrCodeData);
+            var qrCodeBytes = qrCode.GetGraphic(20);
+            var bitmap = new Bitmap(new MemoryStream(qrCodeBytes));
+            QrCodeBitmap = bitmap;
+            ShowShareQr = true;
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to share document");
+        }
+    }
+    
+
+    [RelayCommand]
+    private void CancelShare()
+    {
+        ShowShareQr = false;
     }
 }

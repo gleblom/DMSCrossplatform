@@ -4,10 +4,11 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:views="clr-namespace:DMSCrossplatform.Views"
              x:CompileBindings="False"
+             
              x:DataType="vm:DocumentViewModel"
              x:Class="DMSCrossplatform.Views.DocumentView">
 
-    <Grid RowDefinitions="Auto,*" Margin="16">
+    <Grid RowDefinitions="Auto,*"  Margin="16">
         <!-- Заголовок и кнопки действий -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,16">
             <Button Grid.Column="0" Command="{Binding BackCommand}" Classes="flat">
@@ -24,6 +25,11 @@
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource DmsErrorBrush}"
+                           IsVisible="{Binding ErrorMessage,
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 <Button Command="{Binding SubmitForApprovalCommand}"
                         IsVisible="{Binding CanSubmit}"
                         Background="{DynamicResource DmsPrimaryBrush}">
@@ -32,7 +38,14 @@
                         <TextBlock Text="Отправить на согласование"/>
                     </StackPanel>
                 </Button>
-
+                <Button Command="{Binding UploadNewVersionCommand}"
+                        IsVisible="{Binding CanUploadVersion}"
+                        Background="#4CAF50">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <avalonia:MaterialIcon Kind="ProgressUpload" Width="18" Height="18"/>
+                        <TextBlock TextWrapping="Wrap" Text="Загрузить новую версию"/>
+                    </StackPanel>
+                </Button>
                 <Button Command="{Binding ApproveCommand}"
                         IsVisible="{Binding CanApprove}"
                         Background="#4CAF50">
@@ -54,7 +67,7 @@
         </Grid>
 
         <!-- Вкладки: Просмотр и Согласование -->
-        <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}">
+        <TabControl MaxWidth="700" Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}">
             <!-- Вкладка "Просмотр" -->
             <TabItem Header="Просмотр">
                 <Grid RowDefinitions="Auto,*">
@@ -75,6 +88,20 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
+                        <StackPanel Margin="0,12,0,12"  Spacing="8" IsVisible="{Binding CanDownload}" Orientation="Horizontal">
+                            <Button Command="{Binding DownloadCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Скачать"></TextBlock>
+                                    <avalonia:MaterialIcon Kind="Download"></avalonia:MaterialIcon>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ShareCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Поделиться"></TextBlock>
+                                    <avalonia:MaterialIcon Kind="Share"></avalonia:MaterialIcon>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Просмотр PDF -->
@@ -83,7 +110,7 @@
                             BorderThickness="1"
                             CornerRadius="4"
                             Background="{DynamicResource DmsSurfaceBrush}">
-                        <views:PdfViewerControl PdfUrl="{Binding PdfUrl}"/>
+                        <views:PdfControl PdfUrl="{Binding PdfUrl}"/>
                     </Border>
                 </Grid>
             </TabItem>
@@ -100,7 +127,7 @@
                                        FontSize="18"
                                        FontWeight="SemiBold"/>
 
-                            <views:ApprovalGraphView DataContext="{Binding DocumentRouteGraph}"
+                            <views:ApprovalGraphView GraphData="{Binding DocumentRouteGraph}"
                                                      Document="{Binding Document}"
                                                      ApprovalHistory="{Binding ApprovalHistory}"/>
                         </StackPanel>
@@ -132,7 +159,7 @@
 
                                                     <StackPanel Grid.Column="1" Spacing="2" Margin="12,0">
                                                         <TextBlock Text="{Binding ApproverEmail}" FontWeight="Medium"/>
-                                                        <TextBlock Text="{Binding StepIndex, StringFormat='Этап {0}'}"
+                                                        <TextBlock Text="{Binding StepIndex, Converter={StaticResource AddOneConverter}, StringFormat='Этап: {0:N0}'}"
                                                                    FontSize="11"
                                                                    Opacity="0.7"/>
                                                     </StackPanel>
@@ -255,5 +282,29 @@
                 </StackPanel>
             </Border>
         </Border>
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                IsVisible="{Binding ShowShareQr}"
+                Background="#80000000">
+            <Border Background="{DynamicResource DmsSurfaceBrush}"
+                    BorderBrush="{DynamicResource MaterialDividerBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="24"
+                    Width="420"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Border>
+                    <StackPanel>
+                        <Image Source="{Binding QrCodeBitmap}"  Width="200" Height="200"></Image>
+                        <Button Command="{Binding CancelShareCommand}"
+                                Classes="flat">
+                            <TextBlock Text="Отмена"/>
+                        </Button>
+                    </StackPanel>
+                    
+                </Border>
+            </Border>
+            
+            </Border>
     </Grid>
 </UserControl>

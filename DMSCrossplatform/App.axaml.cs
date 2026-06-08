@@ -1,29 +1,34 @@
 using System;
-using System.Diagnostics;
+using Android.Renderscripts;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using DMSCrossplatform.Infrastructure;
-using DMSCrossplatform.Infrastructure.Storage;
 using DMSCrossplatform.Models.Dto;
-using DMSCrossplatform.Services;
 using DMSCrossplatform.ViewModels;
 using DMSCrossplatform.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 
 namespace DMSCrossplatform;
 
 public partial class App : Application
 {
     public static IServiceProvider Services { get; private set; } = default!;
+    
+    public static IServiceCollection ServiceCollection = new ServiceCollection();
     public static ApprovalRouteReadDto? SelectedApprovalRoute { get; set; }
     public static Guid? SelectedDocumentId { get; set; }
+
+    public static readonly AppSettings Settings = new();
     
     public static IStorageProvider? storageProvider;
+    
+    private IServiceScope? _appScope;
 
     
     public override void Initialize()
@@ -33,39 +38,31 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        Stopwatch sw = Stopwatch.StartNew();
-        AppSettings settings = new();
-        var tokenStorage = AppContainer.GetRequiredService<ISessionBlobStore>();
         
-        var jsonTokenStorage = new JsonTokenStorage(tokenStorage);
-
-        var client = AppContainer.GetRequiredService<IWebAuthnClient>();
-
-        var sc = new ServiceCollection();
-        sc.AddDmsClient(settings, jsonTokenStorage, client);
-        Services = sc.BuildServiceProvider();
+        ServiceCollection.AddDmsClient(Settings);
+        Services = ServiceCollection.BuildServiceProvider(validateScopes: true);
         
-        var logger = Services.GetRequiredService<ILogger<App>>();
-        var shell = Services.GetRequiredService<ShellHost>();
-        shell.ShowStartup();
+        _appScope = Services.CreateScope();
+        
+        var shell = _appScope.ServiceProvider.GetRequiredService<ShellHost>();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow()
             {
                 DataContext = shell
             };
-            storageProvider =  desktop.MainWindow.StorageProvider;
-            sw.Stop();
-            logger.LogInformation("Время запуска: {SwElapsedMilliseconds} мс", sw.ElapsedMilliseconds);
+            storageProvider = desktop.MainWindow.StorageProvider;
+            
+            
         }
         else if (ApplicationLifetime is IActivityApplicationLifetime singleViewFactoryApplicationLifetime)
         {
-            singleViewFactoryApplicationLifetime.MainViewFactory =
-                () => new MainView()
-                {
-                    DataContext = shell
-                };
+            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView
+            {
+                DataContext = shell
+            };
         }
+        
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
             singleViewPlatform.MainView = new MainView()
@@ -73,8 +70,13 @@ public partial class App : Application
                 DataContext = shell
             };
             storageProvider = TopLevel.GetTopLevel(singleViewPlatform.MainView)?.StorageProvider;
+        
+        
         }
 
         base.OnFrameworkInitializationCompleted();
+
+        Dispatcher.UIThread.Post(shell.ShowStartup, DispatcherPriority.Background);
     }
+    
 }

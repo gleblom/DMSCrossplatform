@@ -13,7 +13,7 @@ public class MyDocumentsListViewModel: BaseDocumentsListViewModel
         ILogger<ApiClient> log, 
         IDictionariesService dictionaryService, 
         IDocumentService documentService, 
-        IUserService userService, string? mode = "my") : base(navigation, log, dictionaryService, documentService, userService, mode)
+        IUserService userService) : base(navigation, log, dictionaryService, documentService, userService)
     {
     }
     

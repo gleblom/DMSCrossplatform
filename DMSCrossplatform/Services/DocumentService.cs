@@ -82,4 +82,9 @@ public class DocumentService : IDocumentService
         => _api.GetAsync<DocumentApprovalReadDto>(
             $"/api/documents/{documentId}/versions/{versionId}/approval/{stepIndex}", ct);
 
+    public Task<ShareLinkDto> CreateShareLink(Guid documentId, CancellationToken ct = default)
+        => _api.PostJsonAsync<object, ShareLinkDto>($"/api/documents/{documentId}/share-link", new {}, ct);
+
+    public Task<DocumentReadDto> ConfirmShareLink(string shareLink, CancellationToken ct = default)
+        => _api.PostJsonAsync<object, DocumentReadDto>($"{shareLink}", new {}, ct);
 }

@@ -1,0 +1,15 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
+             x:DataType="viewModels:CameraViewModel"
+             x:CompileBindings="False"
+             x:Class="DMSCrossplatform.Views.CameraView">
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <StackPanel Spacing="12">
+            <TextBlock x:Name="StatusText" TextWrapping="Wrap" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding InfoText}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <ContentControl x:Name="CameraHostContainer" Grid.Row="1" Margin="0,12,0,0"/>
+    </Grid>
+</UserControl>

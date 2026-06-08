@@ -31,7 +31,7 @@ public class BoolToColorConverter : IValueConverter
         {
             return isApproved ? Brushes.Green : Brushes.Red;
         }
-        return Brushes.Gray;
+        return Brushes.LightGray;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -86,6 +86,26 @@ public class ApprovalToColorConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class AddOneConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is double d) return d + 1;
+        if (value is int i) return i + 1;
+        
+
+        if (double.TryParse(value.ToString(), out double result))
+            return result + 1;
+            
+        return value;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

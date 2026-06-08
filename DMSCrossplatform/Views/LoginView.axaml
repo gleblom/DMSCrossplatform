@@ -5,7 +5,7 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:DataType="vm:LoginViewModel"
              x:Class="DMSCrossplatform.Views.LoginView">
-    <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
+                <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
         <Border Height="64"
                 Margin="0, 50"
                 VerticalAlignment="Top">

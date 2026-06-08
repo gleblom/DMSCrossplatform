@@ -12,15 +12,11 @@ public class DocumentsListViewModel: BaseDocumentsListViewModel
         ILogger<ApiClient> log, 
         IDictionariesService dictionaryService, 
         IDocumentService documentService, 
-        IUserService userService, string? mode = "all") : 
-        base(navigation, log, dictionaryService, documentService, userService, mode)
+        IUserService userService) : 
+        base(navigation, log, dictionaryService, documentService, userService)
     {
-
+        
     }
-
-    public static void SwitchMode()
-    {
-        Mode = Mode == "all" ? "incoming" : "all";
-    }
+    
     
 }

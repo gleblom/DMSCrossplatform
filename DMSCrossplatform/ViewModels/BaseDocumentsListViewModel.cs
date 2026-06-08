@@ -25,7 +25,7 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
     private readonly ILogger<ApiClient> _log;
     private readonly INavigationService<MenuRegionState> _navigationService;
     
-    protected static string? Mode = null;
+    public static string? Mode = null;
 
     [ObservableProperty] private MultiSelectViewModel<SimpleDto>? _categoryMultiSelect;
     [ObservableProperty] private MultiSelectViewModel<SimpleDto>? _statusMultiSelect;
@@ -48,7 +48,7 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
             SetProperty(ref _selectedDocument, value);
             if (value == null)
                 return;
-
+            DocumentViewModel.Mode = Mode;
             App.SelectedDocumentId = value.Id;
             _navigationService.NavigateTo<DocumentViewModel>();
         } 
@@ -60,10 +60,9 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
         ILogger<ApiClient> log,
         IDictionariesService dictionaryService,
         IDocumentService documentService,
-        IUserService userService, string? mode = null)
+        IUserService userService)
     {
         _navigationService = navigationService;
-        Mode = mode;
         _log = log;
         _dictionaryService = dictionaryService;
         _documentService = documentService;
@@ -71,7 +70,7 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
         _ = InitializeAsync();
     }
 
-    private async Task InitializeAsync()
+    protected async Task InitializeAsync()
     {
         IsLoading = true;
         LoadingMessage = "Загрузка документов...";
@@ -83,15 +82,14 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
             var authors = GetAuthors();
 
             await Task.WhenAll(statuses, categories, documents, authors);
-
-            LoadingMessage = "Загрузка данных пользователя...";
+            
             CategoryMultiSelect = new MultiSelectViewModel<SimpleDto>(categories.Result, c => c.Name, "Тип документа",
                 selectAllByDefault: true);
-            
 
-            LoadingMessage = "Загрузка...";
+            var selectedAuthors = authors.Result.Where(a => a.RoleId != 2 && a.RoleId != 3).ToList();
+            
             AuthorMultiSelect =
-                new MultiSelectViewModel<UserFullDto>(authors.Result, u => u.FullName, "Автор",
+                new MultiSelectViewModel<UserFullDto>(selectedAuthors, u => u.FullName, "Автор",
                     selectAllByDefault: true);
 
             StatusMultiSelect =
@@ -186,6 +184,17 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
     private async Task<IReadOnlyCollection<UserFullDto>> GetAuthors()
     {
         return await _userService.GetAllAsync();
+    }
+    [RelayCommand]
+    private void OpenDocument(Guid? documentId)
+    {
+        if (documentId == null)
+        {
+            return;
+        }
+        App.SelectedDocumentId = documentId;
+        DocumentViewModel.Mode = Mode;
+        _navigationService.NavigateTo<DocumentViewModel>();
     }
 
 

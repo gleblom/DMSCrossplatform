@@ -45,6 +45,7 @@ public partial class LoginViewModel : ViewModelBase
         _settings = settings;
         _log = log;
         _webAuthnClient = webAuthnClient;
+
     }
 
     [RelayCommand]
@@ -140,8 +141,21 @@ public partial class LoginViewModel : ViewModelBase
             IsBusy = true;
             var webautn = await _auth.WebauthnLoginOptionsAsync();
 
-            var jsonOptions = JsonSerializer.Serialize(webautn.Options);
+            JsonSerializerOptions options = null;
+
+            if (OperatingSystem.IsAndroid())
+            {
+                options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true 
+                };
+            }
+
+            var jsonOptions = JsonSerializer.Serialize(webautn.Options, options);
+            
             var osResponse = await _webAuthnClient.AuthenticateAsync(jsonOptions);
+
 
             var userToken = await _auth.WebauthnLoginFinishAsync(new WebAuthnFinishRequestDto
             {
@@ -155,10 +169,11 @@ public partial class LoginViewModel : ViewModelBase
         catch (ApiException ex)
         {
             ErrorMessage = "Ошибка при входе с помощью ключа безопасности";
-            _log.LogWarning(ex, "Ошибка регистрации ключа безопасности");
+            _log.LogWarning(ex, "Ошибка при входе с помощью ключа безопасности");
         }
         catch (Exception ex)
         {
+            ErrorMessage = $"Ошибка при входе с помощью ключа безопасности: {ex.Message}";
             _log.LogError(ex, "Login unexpected error");
         }
         finally

@@ -70,7 +70,7 @@ public partial class RouteGraphView : UserControl
             {
                 StartPoint = new Point(from.X + NodeWidth / 2, from.Y + NodeHeight),
                 EndPoint = new Point(to.X + NodeWidth / 2, to.Y),
-                Stroke = Brushes.Gray,
+                Stroke = Brushes.LightGray,
                 StrokeThickness = 2
             });
         }
@@ -94,7 +94,7 @@ public partial class RouteGraphView : UserControl
         {
             Width = NodeWidth,
             MinHeight = NodeHeight,
-            Background = new SolidColorBrush(Color.Parse("#424242")),
+            Background = new SolidColorBrush(Color.Parse("#7a7a7a")),
             BorderBrush = new SolidColorBrush(Color.Parse("#616161")),
             BorderThickness = new Thickness(2),
             CornerRadius = new CornerRadius(8),
@@ -108,20 +108,22 @@ public partial class RouteGraphView : UserControl
                     {
                         Text = string.IsNullOrWhiteSpace(node.ApproverFullName) ? "[Не назначен]" : node.ApproverFullName,
                         FontWeight = FontWeight.SemiBold,
-                        FontSize = 14,
+                        FontSize = 16,
                         TextWrapping = TextWrapping.Wrap
                     },
                     new TextBlock
                     {
                         Text = node.ApproverEmail ?? string.Empty,
-                        FontSize = 11,
+                        FontSize = 14,
                         Opacity = 0.8,
+                        FontWeight = FontWeight.SemiBold,
                         TextWrapping = TextWrapping.Wrap
                     },
                     new TextBlock
                     {
                         Text = $"Этап {node.StepIndex + 1}",
-                        FontSize = 11,
+                        FontSize = 14,
+                        FontWeight = FontWeight.SemiBold,
                         Opacity = 0.6,
                         Margin = new Thickness(0, 4, 0, 0)
                     }

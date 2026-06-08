@@ -11,11 +11,14 @@
     <Grid RowDefinitions="Auto,*,Auto" Margin="16">
         <!-- Заголовок -->
         <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,16">
-            <TextBlock Text="{Binding RouteId, Converter={x:Static ObjectConverters.IsNull},
-                             ConverterParameter='Создание маршрута|Редактирование маршрута'}"
+            <TextBlock Text="{Binding RouteId, TargetNullValue='Создание маршрута', FallbackValue='Редактирование маршрута'}"
                        FontSize="24"
                        FontWeight="Bold"/>
-
+            <TextBlock Text="{Binding ErrorMessage}" 
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource DmsErrorBrush}"
+                       IsVisible="{Binding ErrorMessage,
+                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
             <TextBox Text="{Binding RouteName}"
                      PlaceholderText="Название маршрута"
                      Width="400"

@@ -8,12 +8,25 @@
         <ApplicationVersion>1</ApplicationVersion>
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <AndroidPackageFormat>apk</AndroidPackageFormat>
+		<RunAOTCompilation>false</RunAOTCompilation>
+		<AndroidLinkMode>SdkOnly</AndroidLinkMode>
+		<TrimmerRootAssembly>Avalonia.Controls</TrimmerRootAssembly>
+		<AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
         <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+		<AutoGenerateLayoutBindings>true</AutoGenerateLayoutBindings>
     </PropertyGroup>
 	<ItemGroup>
 		<AndroidNativeLibrary Include="Platforms/Android/lib/arm64-v8a/libpdfium.so" />
 		<AndroidNativeLibrary Include="Platforms/Android/lib/armeabi-v7a/libpdfium.so" />
 	</ItemGroup>
+	
+	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidSigningKeyStore>C:\Program Files\Java\jdk-26\bin\DMSCrossplatform.keystore</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>DMSCrossplatform</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass>env:ANDROID_SIGNING_PASSWORD</AndroidSigningKeyPass>
+		<AndroidSigningStorePass>env:ANDROID_SIGNING_PASSWORD</AndroidSigningStorePass>
+	</PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Avalonia.Android" />
@@ -29,11 +42,29 @@
         <PackageReference Include="SkiaSharp.NativeAssets.Android" />
         <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Camera2" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Camera2.Pipe" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Core" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.FeatureCombinationQuery" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Lifecycle" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Video" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.View" />
+        <PackageReference Include="Xamarin.AndroidX.Camera.Viewfinder.Core" />
         <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" />
         <PackageReference Include="Xamarin.AndroidX.Credentials" />
+        <PackageReference Include="Xamarin.AndroidX.Work.Runtime" />
+        <PackageReference Include="Xamarin.Firebase.Messaging" />
+        <PackageReference Include="Xamarin.GooglePlayServices.MLKit.BarcodeScanning" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\DMSCrossplatform\DMSCrossplatform.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="google-services.json" />
+      <GoogleServicesJson Include="google-services.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </GoogleServicesJson>
     </ItemGroup>
 </Project>

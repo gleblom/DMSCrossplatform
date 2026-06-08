@@ -7,9 +7,11 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DMSCrossplatform.Infrastructure;
+using DMSCrossplatform.Infrastructure.Android;
 using DMSCrossplatform.Infrastructure.Api;
 using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using QRCoder;
@@ -22,6 +24,11 @@ public partial class SettingsViewModel: ViewModelBase
     private readonly IWebAuthnClient _webAuthnClient;
     private readonly IAuthService _authService;
     private readonly ISessionService _sessionService;
+    private readonly IPushService  _pushService;
+    private readonly IAndroidActivityHost _androidActivityHost;
+    private readonly IAndroidGetFcmToken _androidGetFcmToken;
+    private readonly IAndroidPermissionRequester  _androidPermissionRequester;
+    private readonly IWindowsGetChannelUri  _windowsGetChannelUri;
     
     
     [ObservableProperty] private bool _isBusy;
@@ -38,19 +45,48 @@ public partial class SettingsViewModel: ViewModelBase
         ILogger<SettingsViewModel> log,
         IAuthService authService,
         IWebAuthnClient webAuthnClient, 
-        ISessionService sessionService)
+        ISessionService sessionService, 
+        IPushService pushService,
+        IWindowsGetChannelUri windowsGetChannelUri
+        )
+    {
+       
+        _log = log;
+        _authService = authService;
+        _webAuthnClient = webAuthnClient;
+        _sessionService = sessionService;
+        _pushService = pushService;
+        _ = LoadUserAsync();
+
+        _windowsGetChannelUri = windowsGetChannelUri;
+
+    }
+
+    public SettingsViewModel(ILogger<SettingsViewModel> log,
+        IAuthService authService,
+        IWebAuthnClient webAuthnClient,
+        ISessionService sessionService,
+        IPushService pushService,
+        IAndroidActivityHost host,
+        IAndroidGetFcmToken  fcmToken,
+        IAndroidPermissionRequester permissionRequester
+    )
     {
         _log = log;
         _authService = authService;
         _webAuthnClient = webAuthnClient;
         _sessionService = sessionService;
+        _pushService = pushService;
         _ = LoadUserAsync();
+        
+        _androidActivityHost = host;
+        _androidGetFcmToken = fcmToken;
+        _androidPermissionRequester = permissionRequester;
     }
 
     private async Task LoadUserAsync()
     {
         User = await _authService.GetMeAsync();
-        PasskeyEnabled = User.PasskeyEnabled;
         OtpEnabled = User.OtpEnabled;
         _sessionService.CurrentUser = User;
     }
@@ -149,6 +185,7 @@ public partial class SettingsViewModel: ViewModelBase
                 break;
         }
     }
+    
 
     [RelayCommand]
     public async Task EnablePasskey()
@@ -157,9 +194,21 @@ public partial class SettingsViewModel: ViewModelBase
         try
         {
             var webautn = await _authService.WebauthnRegisterOptionsAsync();
-            var jsonOptions = JsonSerializer.Serialize(webautn.Options);
-            var osResponse = await _webAuthnClient.RegisterAsync(jsonOptions);
+            
+            JsonSerializerOptions options = null;
 
+            if (OperatingSystem.IsAndroid())
+            {
+                options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true 
+                };
+            }
+            
+            var jsonOptions = JsonSerializer.Serialize(webautn.Options, options);
+
+            var osResponse = await _webAuthnClient.RegisterAsync(jsonOptions);
 
             await _authService.WebauthnRegisterFinishAsync(new WebAuthnFinishRequestDto
             {
@@ -170,13 +219,65 @@ public partial class SettingsViewModel: ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = "Ошибка регистрации ключа безопасности";
             _log.LogWarning(ex, "Ошибка регистрации ключа безопасности");
         }
         catch (Exception ex)
         {
-
             _log.LogWarning(ex, "Операция отменена пользователем");
+        }
+    }
+
+    [RelayCommand]
+    private async Task EnablePush()
+    {
+        ErrorMessage = null;
+        try
+        {
+#if Android
+            if (OperatingSystem.IsAndroid())
+            {
+                
+                var activity = _androidActivityHost.Current
+                               ?? throw new InvalidOperationException("Android activity is not available.");
+                var granted = await _androidPermissionRequester.RequestNotificationAsync(activity);
+                if (!granted)
+                {
+                    ErrorMessage = "Уведомления не разрешены";
+                    return;
+                }
+            
+                var token = await _androidGetFcmToken.GetToken(activity);
+                if (token == "empty")
+                {
+                    return;
+                }
+            
+                await _pushService.RegisterDevice(new DeviceRegisterDto()
+                {
+                    DeviceId = Guid.NewGuid().ToString(),
+                    Platform = "Android",
+                    PushToken = token,
+                    UserId = _sessionService.CurrentUser.UserId
+                });
+            }
+#endif
+            if (OperatingSystem.IsWindows())
+            {
+                var pushChannel = await _windowsGetChannelUri.GetPushChannel();
+                if (pushChannel != null)
+                {
+                     await _pushService.RegisterDevice(new DeviceRegisterDto()
+                    {
+                        DeviceId = Guid.NewGuid().ToString(),
+                        Platform = "Windows",
+                        PushToken = pushChannel
+                    });
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            ErrorMessage = ex.Message;
         }
     }
 }

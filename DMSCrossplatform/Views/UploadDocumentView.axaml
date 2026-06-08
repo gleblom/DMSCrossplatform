@@ -9,7 +9,7 @@
              xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
              xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
              x:Class="DMSCrossplatform.Views.UploadDocumentView">
-        <Grid Background="{DynamicResource DmsBackgroundBrush}">
+        <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

@@ -1,8 +1,28 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:DMSCrossplatform.ViewModels"
+             xmlns:views="clr-namespace:DMSCrossplatform.Views"
              x:DataType="vm:StartupShellViewModel"
              
              x:Class="DMSCrossplatform.Views.StartupShellView">
+
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="vm:LoginViewModel">
+            <views:LoginView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:RegisterViewModel">
+            <views:RegisterView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:CompanyCreateViewModel">
+            <views:CompanyCreateView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:ProfileCreateViewModel">
+            <views:ProfileCreateView />
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
     <ContentControl Content="{Binding Region.CurrentViewModel}" />
 </UserControl>

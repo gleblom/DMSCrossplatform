@@ -9,6 +9,8 @@ namespace DMSCrossplatform.Infrastructure.Policy;
 public sealed class PolicyFactory: IPolicyFactory
 {
     private readonly IEnumerable<IPolicy> _policies;
+    
+    private readonly ISessionService _session;
 
     private readonly UserFullDto _currentUser;
 
@@ -17,7 +19,8 @@ public sealed class PolicyFactory: IPolicyFactory
         ISessionService sessionService)
     {
         _policies = policies;
-        _currentUser = sessionService.CurrentUser;
+        _session = sessionService;
+        _currentUser = _session.CurrentUser;
     }
 
     public IPolicy CreatePolicy()

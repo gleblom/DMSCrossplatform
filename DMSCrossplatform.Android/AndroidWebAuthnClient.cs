@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
+using Android.Content;
 using Android.Credentials;
 using Android.OS;
 using AndroidX.Credentials;
@@ -11,21 +12,38 @@ using Java.Util.Concurrent;
 using CredentialManager = AndroidX.Credentials.CredentialManager;
 using CredentialOption = AndroidX.Credentials.CredentialOption;
 using GetCredentialRequest = AndroidX.Credentials.GetCredentialRequest;
+using GetCredentialResponse = AndroidX.Credentials.GetCredentialResponse;
+using Object = Java.Lang.Object;
 
 namespace DMSCrossplatform.Android;
 
 
 
-public sealed class AndroidWebAuthnClient : Java.Lang.Object, IWebAuthnClient
+public sealed class AndroidWebAuthnClient : IWebAuthnClient
 {
-    private readonly Activity _activity;
-    private readonly ICredentialManager _credentialManager;
+    private Context Activity => global::Android.App.Application.Context;
+    private ICredentialManager? _credentialManager;
     private readonly IExecutor _executor = Executors.NewSingleThreadExecutor();
+    private readonly object _lock = new object();
 
-    public AndroidWebAuthnClient(Activity activity)
+    public AndroidWebAuthnClient()
     {
-        _activity = activity ?? throw new ArgumentNullException(nameof(activity));
-        _credentialManager = CredentialManager.Companion.Create(activity);
+        // Ленивая инициализация CredentialManager для ускорения старта приложения
+    }
+
+    private ICredentialManager GetCredentialManager()
+    {
+        if (_credentialManager == null)
+        {
+            lock (_lock)
+            {
+                if (_credentialManager == null)
+                {
+                    _credentialManager = CredentialManager.Companion.Create(Activity);
+                }
+            }
+        }
+        return _credentialManager;
     }
 
     public Task<string> RegisterAsync(string optionsJson, CancellationToken ct = default)
@@ -52,8 +70,8 @@ public sealed class AndroidWebAuthnClient : Java.Lang.Object, IWebAuthnClient
             tcs.TrySetCanceled(ct);
         });
 
-        _credentialManager.CreateCredentialAsync(
-            _activity,
+        GetCredentialManager().CreateCredentialAsync(
+            Activity,
             request,
             cancellationSignal,
             _executor,
@@ -88,24 +106,24 @@ public sealed class AndroidWebAuthnClient : Java.Lang.Object, IWebAuthnClient
             try { cancellationSignal.Cancel(); } catch { /* ignore */ }
             tcs.TrySetCanceled(ct);
         });
-
-        _credentialManager.GetCredentialAsync(
-            _activity,
+        
+        GetCredentialManager().GetCredentialAsync(
+            Activity,
             request,
             cancellationSignal,
             _executor,
             new GetCallback(
                 onResult: result =>
                 {
-                    var credential = result;
-                    if (credential is PublicKeyCredential pk)
+                    var cred = (GetCredentialResponse)result;
+                    if (cred.Credential is PublicKeyCredential pk)
                     {
                         tcs.TrySetResult(pk.AuthenticationResponseJson);
                         return;
                     }
 
                     tcs.TrySetException(new InvalidOperationException(
-                        $"Unexpected credential type: {credential?.Class?.Name ?? "<null>"}"));
+                        $"Unexpected credential type: {result?.Class?.Name ?? "<null>"}"));
                 },
                 onError: error =>
                 {
@@ -116,34 +134,34 @@ public sealed class AndroidWebAuthnClient : Java.Lang.Object, IWebAuthnClient
         return tcs.Task;
     }
 
-    private sealed class CreateCallback : Java.Lang.Object, ICredentialManagerCallback
+    private sealed class CreateCallback : Object, ICredentialManagerCallback
     {
-        private readonly Action<Java.Lang.Object?> _onResult;
-        private readonly Action<Java.Lang.Object?> _onError;
+        private readonly Action<Object?> _onResult;
+        private readonly Action<Object?> _onError;
 
-        public CreateCallback(Action<Java.Lang.Object?> onResult, Action<Java.Lang.Object?> onError)
+        public CreateCallback(Action<Object?> onResult, Action<Object?> onError)
         {
             _onResult = onResult;
             _onError = onError;
         }
 
-        public void OnResult(Java.Lang.Object result) => _onResult(result);
-        public void OnError(Java.Lang.Object e) => _onError(e);
+        public void OnResult(Object? result) => _onResult(result);
+        public void OnError(Object e) => _onError(e);
     }
 
-    private sealed class GetCallback : Java.Lang.Object, ICredentialManagerCallback
+    private sealed class GetCallback : Object, ICredentialManagerCallback
     {
-        private readonly Action<Java.Lang.Object?> _onResult;
-        private readonly Action<Java.Lang.Object?> _onError;
+        private readonly Action<Object?> _onResult;
+        private readonly Action<Object?> _onError;
 
-        public GetCallback(Action<Java.Lang.Object?> onResult, Action<Java.Lang.Object?> onError)
+        public GetCallback(Action<Object?> onResult, Action<Object?> onError)
         {
             _onResult = onResult;
             _onError = onError;
         }
 
-        public void OnResult(Java.Lang.Object result) => _onResult(result);
-        public void OnError(Java.Lang.Object e) => _onError(e);
+        public void OnResult(Object result) => _onResult(result);
+        public void OnError(Object e) => _onError(e);
     }
 }
 

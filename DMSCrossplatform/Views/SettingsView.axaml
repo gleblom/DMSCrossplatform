@@ -8,12 +8,8 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
              x:Class="DMSCrossplatform.Views.SettingsView">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Border MaxWidth="300" Padding="24"  VerticalAlignment="Center" HorizontalAlignment="Center"
+    <Grid RowDefinitions="Auto,*">
+        <Border MaxWidth="500" Padding="24"  VerticalAlignment="Center" HorizontalAlignment="Center"
                 Background="{DynamicResource DmsSurfaceColor}">
             <StackPanel Spacing="12">
 
@@ -24,14 +20,8 @@
                 </StackPanel>
                 <controls:Card DataContext="{Binding User}" >
                     <StackPanel Spacing="12">
-                        <TextBox Classes="solo"  FontSize="18">
-                            <TextBox.InnerLeftContent>
-                                <TextBlock Text="{Binding FullName}" />
-                            </TextBox.InnerLeftContent>
-                            <TextBox.InnerRightContent>
-                                <TextBlock Text="{Binding RoleName}" />
-                            </TextBox.InnerRightContent>
-                        </TextBox>
+                        <TextBox Classes="solo"  Text="{Binding FullName}" FontSize="18"  PlaceholderText="ФИО"/>
+                        <TextBox Classes="solo"  Text="{Binding RoleName}" FontSize="18"  PlaceholderText="Должность"/>
                         <TextBox Classes="solo" FontSize="18" Text="{Binding CompanyName}" PlaceholderText="Организация"/>
                         <TextBox Classes="solo" FontSize="18" Text="{Binding Email}" PlaceholderText="Email"/>
                         <TextBox Classes="solo" FontSize="18" Text="{Binding Phone}" PlaceholderText="Телефон"/>
@@ -45,15 +35,25 @@
                                    Foreground="{DynamicResource DmsForegroundBrush}" />
                     </StackPanel>
                     <controls:Card >
-                        <StackPanel Spacing="12">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
                             <TextBlock Text="Вход по паролю и одноразовому коду (через стороннее приложение 2FA)" TextWrapping="Wrap"/>
                             <ToggleSwitch Command="{Binding TwoFactorAuthCommand}" Margin="140,0" IsChecked="{Binding OtpEnabled}" />
                         </StackPanel>
                     </controls:Card>
-                    <controls:Card Padding="16">
-                        <StackPanel Spacing="12">
+                    <controls:Card>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
                             <TextBlock Text="Вход по ключу безопасности" TextWrapping="Wrap"/>
-                            <ToggleSwitch IsChecked="{Binding PasskeyEnabled}" IsEnabled="{Binding !PasskeyEnabled}" Margin="140,0" Command="{Binding EnablePasskeyCommand}"/>
+                            <Button Width="300" Content="Включить вход по ключу безопасности" Margin="140,0" Command="{Binding EnablePasskeyCommand}"/>
+                        </StackPanel>
+                    </controls:Card>
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="{DynamicResource DmsErrorBrush}"
+                               IsVisible="{Binding ErrorMessage, 
+                               Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    <controls:Card>
+                        <StackPanel>
+                            <TextBlock Text="Включить push-уведомления" TextWrapping="Wrap"></TextBlock>
+                            <ToggleSwitch Command="{Binding EnablePushCommand}"></ToggleSwitch>
                         </StackPanel>
                     </controls:Card>
                     <TextBlock Text="{Binding ErrorMessage}" 
@@ -66,13 +66,17 @@
         </Border>    
         <Border Grid.Row="0" Grid.RowSpan="2"
                 IsVisible="{Binding IsVisible}"
-                Background="#80000000"
-                MaxWidth="300"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-            <StackPanel VerticalAlignment="Center"
-                        Background="{DynamicResource DmsBackgroundBrush}"
-                        HorizontalAlignment="Center">
+                Background="#80000000">
+            <Border Background="{DynamicResource DmsSurfaceBrush}"
+                    BorderBrush="{DynamicResource MaterialDividerBrush}"
+                    BorderThickness="1"
+                    MaxWidth="400"
+                    CornerRadius="8"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center"
+                            Background="{DynamicResource DmsBackgroundBrush}"
+                            HorizontalAlignment="Center">
                 <Border Padding="14">
                     <TextBlock FontWeight="Bold" FontSize="18" Text="Двухфакторная аутентификация"></TextBlock>
                 </Border>
@@ -126,8 +130,9 @@
                                 Content="Подтвердить и сохранить"></Button>
                     </StackPanel>
                 </Border>
-                
+                    
             </StackPanel>
+            </Border>
         </Border>
     </Grid>
 </UserControl>

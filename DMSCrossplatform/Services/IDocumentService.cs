@@ -28,4 +28,8 @@ public interface IDocumentService
     Task<IReadOnlyList<MvDocumentApprovalReadDto>> GetDocumentApprovalsAsync(Guid documentId, CancellationToken ct = default);
     
     Task<DocumentApprovalReadDto> GetApprovalByStep(Guid documentId, int stepIndex, int versionId, CancellationToken ct = default);
+
+    Task<ShareLinkDto> CreateShareLink(Guid documentId, CancellationToken ct = default);
+    
+    Task<DocumentReadDto> ConfirmShareLink(string shareLink, CancellationToken ct = default);
 }

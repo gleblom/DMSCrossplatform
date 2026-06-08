@@ -55,6 +55,7 @@ public partial class UserListViewModel : ViewModelBase
         CanSeeUnits = _policy.CanSeeUnits;
 
         _ = LoadData();
+        
     }
 
     [RelayCommand]
