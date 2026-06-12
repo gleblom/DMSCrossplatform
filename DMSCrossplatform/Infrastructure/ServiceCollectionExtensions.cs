@@ -20,6 +20,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton(settings);
         services.AddSingleton<ITokenStorage, JsonTokenStorage>();
+        services.AddSingleton<IDeviceIdentityStore>(_ =>
+            new FileDeviceIdentityStore(System.IO.Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+                "DMSCrossplatform",
+                "device.id")));
 
         // Логирование
         AppLogger.Configure();

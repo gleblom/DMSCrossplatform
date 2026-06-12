@@ -242,6 +242,16 @@
                             </DatePicker>
                         </controls:Card>
                     </StackPanel>
+                    
+                    <StackPanel Spacing="16" VerticalAlignment="Center">
+                        <Button Classes="flat" IsVisible="{OnPlatform Android='false', Default='true'}"
+                                 Command="{Binding ShowScannerCommand}">
+                            <StackPanel Margin="5" Orientation="Horizontal">
+                                <TextBlock Text="Сканировать QR-код"></TextBlock>
+                                <avalonia:MaterialIcon Kind="QrcodeScan"></avalonia:MaterialIcon>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
 
                 </StackPanel>
                 
@@ -260,21 +270,50 @@
                     <DataGridTextColumn Header="Статус" Width="2*" Binding="{Binding StatusName}"/>
                 </DataGrid.Columns>
             </DataGrid>
-                <Border Grid.Row="0" Grid.RowSpan="2"
-                        IsVisible="{Binding IsLoading}"
-                        Background="#80000000"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch">
-                    <StackPanel VerticalAlignment="Center"
+                    <Border Grid.Row="0" Grid.RowSpan="2"
+                            IsVisible="{Binding IsLoading}"
+                            Background="#80000000"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch">
+                        <StackPanel VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Spacing="16">
+                            <ProgressBar Width="50" Height="50" 
+                                                 IsIndeterminate="True"
+                                                 Classes="circular"
+                                                 IsVisible="{Binding IsLoading}"/>
+                            <TextBlock Text="Открытие документа..." FontSize="14"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="0" Grid.RowSpan="2"
+                            IsVisible="{Binding ShowUploadQr}"
+                            Background="#80000000">
+                        <Border Background="{DynamicResource DmsSurfaceBrush}"
+                                BorderBrush="{DynamicResource MaterialDividerBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="24"
                                 HorizontalAlignment="Center"
-                                Spacing="16">
-                        <ProgressBar Width="50" Height="50" 
-                                     IsIndeterminate="True"
-                                     Classes="circular"
-                                     IsVisible="{Binding IsLoading}"/>
-                        <TextBlock Text="Открытие документа..." FontSize="14"/>
-                    </StackPanel>
-                </Border>
+                                VerticalAlignment="Center">
+                            <Border>
+                                <StackPanel>
+                                    <Image Source="{Binding QrCodeBitmap}"  Width="200" Height="200"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Command="{Binding ShowScannerCommand}"
+                                                Classes="flat">
+                                            <TextBlock Text="Отмена"/>
+                                        </Button>
+                                        <Button Command="{Binding UploadQrCommand}" Classes="flat">
+                                            <TextBlock Text="Загрузить QR"/>
+                                        </Button>
+                                        <Button Command="{Binding ScanQrCommand}" Classes="flat">
+                                            <TextBlock Text="Cканировать QR"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Border>
+                    </Border>
             </Grid>
         </On>   
     </OnPlatform>

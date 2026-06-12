@@ -8,7 +8,8 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
              x:Class="DMSCrossplatform.Views.SettingsView">
-    <Grid RowDefinitions="Auto,*">
+    <ScrollViewer>
+          <Grid RowDefinitions="Auto,*">
         <Border MaxWidth="500" Padding="24"  VerticalAlignment="Center" HorizontalAlignment="Center"
                 Background="{DynamicResource DmsSurfaceColor}">
             <StackPanel Spacing="12">
@@ -20,11 +21,11 @@
                 </StackPanel>
                 <controls:Card DataContext="{Binding User}" >
                     <StackPanel Spacing="12">
-                        <TextBox Classes="solo"  Text="{Binding FullName}" FontSize="18"  PlaceholderText="ФИО"/>
-                        <TextBox Classes="solo"  Text="{Binding RoleName}" FontSize="18"  PlaceholderText="Должность"/>
-                        <TextBox Classes="solo" FontSize="18" Text="{Binding CompanyName}" PlaceholderText="Организация"/>
-                        <TextBox Classes="solo" FontSize="18" Text="{Binding Email}" PlaceholderText="Email"/>
-                        <TextBox Classes="solo" FontSize="18" Text="{Binding Phone}" PlaceholderText="Телефон"/>
+                        <TextBox IsReadOnly="True" Classes="solo"  Text="{Binding FullName}" FontSize="18"  PlaceholderText="ФИО"/>
+                        <TextBox IsReadOnly="True" Classes="solo"  Text="{Binding RoleName}" FontSize="18"  PlaceholderText="Должность"/>
+                        <TextBox IsReadOnly="True" Classes="solo" FontSize="18" Text="{Binding CompanyName}" PlaceholderText="Организация"/>
+                        <TextBox IsReadOnly="True" Classes="solo" FontSize="18" Text="{Binding Email}" PlaceholderText="Email"/>
+                        <TextBox IsReadOnly="True" Classes="solo" FontSize="18" Text="{Binding Phone}" PlaceholderText="Телефон"/>
                     </StackPanel>
 
                 </controls:Card>
@@ -37,24 +38,40 @@
                     <controls:Card >
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
                             <TextBlock Text="Вход по паролю и одноразовому коду (через стороннее приложение 2FA)" TextWrapping="Wrap"/>
-                            <ToggleSwitch Command="{Binding TwoFactorAuthCommand}" Margin="140,0" IsChecked="{Binding OtpEnabled}" />
+                            <ToggleSwitch HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Command="{Binding TwoFactorAuthCommand}"
+                                          IsChecked="{Binding OtpEnabled}" />
                         </StackPanel>
+                    </controls:Card>
+                    <controls:Card>
+                            <ScrollViewer>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                                    <TextBlock Text="Вход по ключу безопасности" TextWrapping="Wrap"/>
+                                    <Expander Header="Ключи безопасности">
+                                        <ScrollViewer>
+                                            <ItemsControl ItemsSource="{Binding Credentials}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="5" ColumnDefinitions="2*, *">
+                                                            <TextBlock VerticalAlignment="Center" Text="{Binding DeviceName}"></TextBlock>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer> 
+                                    </Expander>
+                                    <Button Content="Добавить ключ" Command="{Binding TogglePasskeyCommand}"/>
+                                </StackPanel> 
+                            </ScrollViewer>
                     </controls:Card>
                     <controls:Card>
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-                            <TextBlock Text="Вход по ключу безопасности" TextWrapping="Wrap"/>
-                            <Button Width="300" Content="Включить вход по ключу безопасности" Margin="140,0" Command="{Binding EnablePasskeyCommand}"/>
+                            <TextBlock Text="Push-уведомления на этом устройстве" TextWrapping="Wrap"></TextBlock>
+                            <ToggleSwitch HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          IsChecked="{Binding IsPushEnabled, Mode=TwoWay}"
+                                          Command="{Binding TogglePushCommand}"/>
                         </StackPanel>
-                    </controls:Card>
-                    <TextBlock Text="{Binding ErrorMessage}" 
-                               Foreground="{DynamicResource DmsErrorBrush}"
-                               IsVisible="{Binding ErrorMessage, 
-                               Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-                    <controls:Card>
-                        <StackPanel>
-                            <TextBlock Text="Включить push-уведомления" TextWrapping="Wrap"></TextBlock>
-                            <ToggleSwitch Command="{Binding EnablePushCommand}"></ToggleSwitch>
-                        </StackPanel>
+                        
                     </controls:Card>
                     <TextBlock Text="{Binding ErrorMessage}" 
                                Foreground="{DynamicResource DmsErrorBrush}"
@@ -114,10 +131,6 @@
                     <StackPanel>
                         <TextBox MaxLength="6" PlaceholderText="Код аутентификации" 
                                  Text="{Binding AuthCode}"></TextBox>
-                        <TextBlock Text="{Binding ErrorMessage}" 
-                                   Foreground="{DynamicResource DmsErrorBrush}"
-                                   IsVisible="{Binding ErrorMessage, 
-                               Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                     </StackPanel>
                 </Border>
                 
@@ -135,4 +148,5 @@
             </Border>
         </Border>
     </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ public class WindowsDownloadSaver: IDownloadSaver
         _log = log;
     }
 
-    public async Task SaveAsync(Uri source, string suggestedFileName, string mimeType, CancellationToken ct = default)
+    public async Task SaveAsync(Stream content, string suggestedFileName, string mimeType, CancellationToken ct = default)
     {
         var file = await _storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
@@ -29,10 +30,8 @@ public class WindowsDownloadSaver: IDownloadSaver
         if (file is null)
             return;
 
-        using var http = new HttpClient();
-        await using var response = await http.GetStreamAsync(source, ct);
-        await using var destination = await file.OpenWriteAsync();
-        await response.CopyToAsync(destination, ct);
+        await using var target = await file.OpenWriteAsync();
+        await content.CopyToAsync(target, ct);
         
         _log.LogInformation("File saved to {Path}", file.Path);
     }

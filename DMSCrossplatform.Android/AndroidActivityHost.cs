@@ -2,6 +2,7 @@
 using Android;
 using Android.App;
 using Android.Content.PM;
+using Android.OS;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using DMSCrossplatform.Infrastructure.Android;
@@ -40,6 +41,9 @@ public class AndroidPermissionRequester: IAndroidPermissionRequester
 
     public Task<bool> RequestNotificationAsync(Activity activity)
     {
+        if (Build.VERSION.SdkInt < BuildVersionCodes.Tiramisu)
+            return Task.FromResult(true);
+
         if (ContextCompat.CheckSelfPermission(activity, Manifest.Permission.PostNotifications) == Permission.Granted)
             return Task.FromResult(true);
 
@@ -48,9 +52,17 @@ public class AndroidPermissionRequester: IAndroidPermissionRequester
         return _pending.Task;
     }
 
+    public Task RevokeNotificationAsync(Activity activity)
+    {
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu)
+            activity.RevokeSelfPermissionOnKill(Manifest.Permission.PostNotifications);
+
+        return Task.CompletedTask;
+    }
+
     public static void HandleRequestPermissionsResult(int requestCode, Permission[] grantResults)
     {
-        if (requestCode != CameraRequestCode || _pending is null)
+        if ((requestCode != CameraRequestCode && requestCode != NotificationRequestCode) || _pending is null)
             return;
 
         var granted = grantResults.Length > 0 && grantResults[0] == Permission.Granted;

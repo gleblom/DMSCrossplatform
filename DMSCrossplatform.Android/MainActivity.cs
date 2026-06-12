@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DMSCrossplatform.Android;
 
 [Activity(
-    Label = "DMSCrossplatform.Android",
+    Label = "Электронный архив корпоративной документации",
     Theme = "@style/MyTheme.NoActionBar",
     Icon = "@drawable/icon",
     MainLauncher = true,
@@ -45,11 +45,7 @@ public class MainActivity : AvaloniaMainActivity
             var dataJson = intent.GetStringExtra("dataJson");
             var node = JsonNode.Parse(dataJson);
             
-            Console.WriteLine($"Intent Json Data: {dataJson}");
-            
             var documentId = Guid.Parse(node["documentId"].ToString());
-            
-            Console.WriteLine($"Notification document id '{documentId}'");
             
             App.SelectedDocumentId = documentId;
             Dispatcher.UIThread.Post(() =>

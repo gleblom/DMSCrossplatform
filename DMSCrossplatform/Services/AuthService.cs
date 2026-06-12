@@ -73,12 +73,14 @@ public class AuthService : IAuthService
         => _api.PostJsonAsync<WebAuthnFinishRequestDto, UserTokenDto>("/api/auth/webauthn/login/finish", finishDto, ct);
 
     public Task<PasskeyStatusDto> GetPasskeyStatusAsync(string deviceId, CancellationToken ct = default)
-        => _api.GetAsync<PasskeyStatusDto>($"/api/auth/webauthn/status/{deviceId}", ct);
+        => _api.GetAsync<PasskeyStatusDto>($"/api/auth/webauthn/status/", ct);
 
     public Task<IReadOnlyList<PasskeyCredentialDto>> GetPasskeysAsync(CancellationToken ct = default)
         => _api.GetAsync<IReadOnlyList<PasskeyCredentialDto>>("/api/auth/webauthn/credentials", ct);
 
     public Task<IReadOnlyList<string>> RevokePasskeyAsync(string credentialId, CancellationToken ct = default)
-        => _api.PostJsonAsync<object, IReadOnlyList<string>>($"/api/auth/webauthn/{credentialId}", new {}, ct);
+        => _api.PostJsonAsync<object, IReadOnlyList<string>>($"/api/auth/webauthn/credentials/{credentialId}/revoke", new {}, ct);
 
+    public Task<IReadOnlyList<string>> EnablePasskeyAsync(string credentialId, CancellationToken ct = default)
+        => _api.PostJsonAsync<object, IReadOnlyList<string>>($"/api/auth/webauthn/credentials/{credentialId}/enable", new {}, ct);
 }

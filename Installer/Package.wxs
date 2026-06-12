@@ -1,0 +1,75 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+    <Package
+            Name="Электронный архив корпоративной документации"
+            Manufacturer="ETI"
+            Version="1.0.0.0"
+            UpgradeCode="34BDCBCB-2300-4A34-8745-EE84FFD9C930"
+            Language="1049"
+            Scope="perMachine">
+
+        <MajorUpgrade DowngradeErrorMessage="Более новая версия уже установлена." />
+        <MediaTemplate EmbedCab="yes" />
+        
+        <Icon Id="AppIcon" SourceFile="Assets\avalonia-logo.ico" />
+        <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="Электронный архив корпоративной документации" />
+        </StandardDirectory>
+
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="Электронный архив корпоративной документации" />
+        </StandardDirectory>
+
+        <StandardDirectory Id="DesktopFolder" />
+
+
+        <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+            <Files Include="$(var.PublishDir)**" />
+        </ComponentGroup>
+
+        <ComponentGroup Id="StartMenuShortcut" Directory="ApplicationProgramsFolder">
+            <Component Id="StartMenuShortcutComponent" Guid="6F1B2BD8-25AA-4E3E-B07A-5ED8C1860502">
+                <Shortcut
+                        Id="StartMenuShortcut"
+                        Name="Электронный архив корпоративной документации"
+                        Description="Запуск приложения"
+                        Target="[#MainExe]"
+                        WorkingDirectory="INSTALLFOLDER"
+                        Icon="AppIcon" />
+                <RemoveFolder Id="RemoveStartMenuFolder" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\ETI" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+        
+        <ComponentGroup Id="DesktopShortcut" Directory="DesktopFolder">
+            <Component Id="DesktopShortcutComponent" Guid="29A314D0-8B55-44DF-AE00-A0764EDCDE6E">
+                <Shortcut
+                        Id="DesktopShortcut"
+                        Name="Электронный архив корпоративной документации"
+                        Description="Запуск приложения"
+                        Target="[#MainExe]"
+                        WorkingDirectory="INSTALLFOLDER"
+                        Icon="AppIcon" />
+                <RegistryValue Root="HKCU" Key="Software\ETI" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="MainExeComponent" Directory="INSTALLFOLDER">
+            <Component Id="MainExeCmp" Guid="DB2A677B-46CA-4D06-BAF0-8DE45F02A064">
+                <File Id="MainExe" Source="$(var.PublishDir)DMSCrossplatform.Desktop.exe" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+        
+        <Feature Id="MainFeature" Title="Основная программа" Level="1">
+            <ComponentGroupRef Id="AppFiles" />
+            <ComponentGroupRef Id="StartMenuShortcut" />
+            <ComponentGroupRef Id="DesktopShortcut" />
+            <ComponentGroupRef Id="MainExeComponent" />
+        </Feature>
+
+    </Package>
+
+</Wix>

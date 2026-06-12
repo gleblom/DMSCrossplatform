@@ -38,9 +38,16 @@
                                                    FontSize="14"/>
                                     </StackPanel>
                                     
-                                    <Button Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" Classes="flat" Foreground="Tomato" Command="{Binding $parent[UserControl].DataContext.DeleteNotificationCommand}"
-                                        IsVisible="{Binding IsVisible}" Grid.Column="1">
-                                        <avalonia:MaterialIcon HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Kind="Delete"/>
+                                    <Button Width="30" Height="30" HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center" 
+                                            CommandParameter="{Binding NotificationId}"
+                                            Classes="flat" Foreground="Tomato" 
+                                            Command="{Binding $parent[UserControl].DataContext.DeleteNotificationCommand}"
+                                            IsVisible="{Binding IsVisible}" Grid.Column="1">
+                                        
+                                        <avalonia:MaterialIcon HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" 
+                                                               Width="20" Height="20" Kind="Delete"/>
                                     </Button>
                                 </Grid>
                             </Button>

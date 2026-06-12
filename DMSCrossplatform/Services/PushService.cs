@@ -36,8 +36,8 @@ public class PushService: IPushService
         => _api.GetAsync<IReadOnlyList<DeviceListItemDto>>("api/push/devices");
 
     public Task<DeviceStatusDto> GetDeviceStatus(string deviceId)
-        => _api.GetAsync<DeviceStatusDto>($"api/push/device/{deviceId}");
+        => _api.GetAsync<DeviceStatusDto>($"api/push/devices/{deviceId}/status");
 
     public Task<ReadDeviceDto> UpdateDeviceStatus(string deviceId, DeviceUpdateDto deviceUpdateDto)
-        => _api.PostJsonAsync<DeviceUpdateDto, ReadDeviceDto>($"api/push/device/{deviceId}", deviceUpdateDto);
+        => _api.PostJsonAsync<DeviceUpdateDto, ReadDeviceDto>($"api/push/devices/{deviceId}", deviceUpdateDto);
 }

@@ -9,19 +9,11 @@
              xmlns:viewModels="clr-namespace:DMSCrossplatform.ViewModels"
              xmlns:custom="clr-namespace:DMSCrossplatform.Views.Custom"
              x:Class="DMSCrossplatform.Views.UploadDocumentView">
-        <Grid Background="{DynamicResource LinearGradientBackgroundBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition MaxWidth="{OnPlatform Default='500', Android='300'}" Width="3*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-        <!-- Заголовок -->
-        <Border Grid.Row="0"   Grid.Column="1"
+        <Grid Background="{DynamicResource LinearGradientBackgroundBrush}" 
+              RowDefinitions="Auto,*,Auto"
+              ColumnDefinitions="{OnPlatform Default='2*,3*,2*', Android='*'}">
+            <!-- Заголовок -->
+        <Border Grid.Row="0"   Grid.Column="{OnPlatform Default='1', Android='0'}"
                 Height="60"
                 VerticalAlignment="Top">
             <TextBlock Text="Загрузка документа"
@@ -32,7 +24,7 @@
         </Border>
 
         <!-- Основной контент -->
-        <ScrollViewer Grid.Row="1" Grid.Column="1"
+        <ScrollViewer Grid.Row="1" Grid.Column="{OnPlatform Default='1', Android='0'}"
                       VerticalScrollBarVisibility="Hidden"
                       Margin="16">
 
@@ -48,8 +40,7 @@
                             assists:TextFieldAssist.Label="Введите название"
 
                             MaxLength="20"
-                            Text="{Binding DocumentTitle, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            Width="300"/>
+                            Text="{Binding DocumentTitle, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                     </StackPanel>
                 </controls:Card>
 
@@ -61,8 +52,7 @@
                                    FontSize="16"/>
                         <ComboBox ItemsSource="{Binding Categories}"
                                   SelectedItem="{Binding SelectedFileCategory, Mode=TwoWay}"
-                                  assists:ComboBoxAssist.Label="Выберите категорию"
-                                  Width="300">
+                                  assists:ComboBoxAssist.Label="Выберите категорию">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}" 
@@ -75,8 +65,7 @@
                 <controls:Card>
                     <custom:MultiSelectComboBoxView 
                         Margin="10,0,0,0"
-                        DataContext="{Binding Units}"
-                        Width="300"/>
+                        DataContext="{Binding Units}"/>
                 </controls:Card>
                 
                 <controls:Card Padding="4">
@@ -85,7 +74,6 @@
                                    FontWeight="SemiBold"
                                    FontSize="16"/>
                         <DatePicker 
-                            Width="200"
                             assists:TextFieldAssist.Label="До"
                             SelectedDate="{Binding ToDate, Mode=TwoWay}">
                         </DatePicker>
@@ -114,7 +102,8 @@
                                 
                                 <TextBlock Text="Выберите файл документа"
                                            HorizontalAlignment="Center"
-                                           FontSize="16"
+                                           FontSize="12"
+                                           TextWrapping="Wrap"
                                            TextAlignment="Center"
                                            Foreground="#333"/>
                                 
@@ -153,7 +142,7 @@
         </ScrollViewer>
 
         <!-- Кнопка загрузки -->
-        <Border Grid.Row="2"   Grid.Column="1"
+        <Border Grid.Row="2"   Grid.Column="{OnPlatform Default='1', Android='0'}"
                 BorderThickness="1,0,0,0"
                 Padding="16">
             <StackPanel Orientation="Vertical" 
@@ -175,7 +164,7 @@
         </Border>
         
         <!-- Индикатор загрузки -->
-        <Border Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1"
+        <Border Grid.Row="0" Grid.RowSpan="3"  Grid.Column="{OnPlatform Default='1', Android='0'}"
                 IsVisible="{Binding IsLoading}"
                 Background="#80000000"
 

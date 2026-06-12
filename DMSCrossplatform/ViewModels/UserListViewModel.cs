@@ -106,6 +106,16 @@ public partial class UserListViewModel : ViewModelBase
             selectAllByDefault: true);
     }
 
+    [RelayCommand]
+    private void OpenUser(Guid? userId)
+    {
+        var user = Users.FirstOrDefault(u => u.UserId == userId);
+        if (user is not null)
+        {
+            SelectedUser = user;
+        }
+    }
+
     private async Task LoadUnits()
     {
         var units = await _dictionariesService.GetUnitsAsync();

@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using DMSCrossplatform.Infrastructure;
 using DMSCrossplatform.Infrastructure.Api;
 using DMSCrossplatform.Infrastructure.Navigation;
+using DMSCrossplatform.Infrastructure.Storage;
 using DMSCrossplatform.Infrastructure.Validation;
 using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
@@ -24,6 +25,8 @@ public partial class LoginViewModel : ViewModelBase
     private readonly ILogger<LoginViewModel> _log;
     private readonly ShellHost _shellHost;
     private readonly IWebAuthnClient _webAuthnClient;
+    private readonly IDeviceIdentityStore _deviceIdentityStore;
+    private string? _deviceId;
     
 
     [ObservableProperty] private string _email = string.Empty;
@@ -36,16 +39,28 @@ public partial class LoginViewModel : ViewModelBase
 
     public LoginViewModel(IAuthService auth, ISessionService session, 
         ShellHost shellHost, INavigationService<StartupRegionState> nav,
+        IDeviceIdentityStore deviceIdentityStore,
         AppSettings settings, ILogger<LoginViewModel> log, IWebAuthnClient webAuthnClient)
     {
         _auth = auth;
         _session = session;
         _shellHost = shellHost;
         _navigation = nav;
+        _deviceIdentityStore = deviceIdentityStore;
         _settings = settings;
         _log = log;
         _webAuthnClient = webAuthnClient;
 
+    }
+
+    private string GetDeviceName()
+    {
+#if Android
+        if (OperatingSystem.IsAndroid())
+            return $"Android {Android.OS.Build.Model}";
+#endif
+
+        return Environment.MachineName;
     }
 
     [RelayCommand]
@@ -131,6 +146,8 @@ public partial class LoginViewModel : ViewModelBase
             IsBusy = false;
         }
     }
+    private async Task<string> GetDeviceIdAsync()
+        => _deviceId ??= await _deviceIdentityStore.GetOrCreateAsync();
 
     [RelayCommand]
     private async Task PasskeySignIn()
@@ -156,11 +173,13 @@ public partial class LoginViewModel : ViewModelBase
             
             var osResponse = await _webAuthnClient.AuthenticateAsync(jsonOptions);
 
-
+            var deviceId = await GetDeviceIdAsync();
             var userToken = await _auth.WebauthnLoginFinishAsync(new WebAuthnFinishRequestDto
             {
                 ChallengeId = webautn.ChallengeId,
-                Credential = JToken.Parse(osResponse)
+                Credential = JToken.Parse(osResponse),
+                DeviceId = deviceId,
+                DeviceName = GetDeviceName()
             });
             await _session.SignInAsync(Email, userToken);
             _session.CurrentUser = await _auth.GetMeAsync();
@@ -173,7 +192,7 @@ public partial class LoginViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Ошибка при входе с помощью ключа безопасности: {ex.Message}";
+            ErrorMessage = $"Ошибка при входе с помощью ключа безопасности";
             _log.LogError(ex, "Login unexpected error");
         }
         finally

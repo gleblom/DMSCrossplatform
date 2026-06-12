@@ -73,7 +73,7 @@
                                         <!-- Карточка пользователя -->
                                         <Button
                                             Command="{Binding $parent[UserControl].DataContext.OpenUserCommand}" 
-                                            CommandParameter="{Binding Id}" 
+                                            CommandParameter="{Binding UserId}" 
                                             Background="Transparent" 
                                             BorderThickness="0"
                                             Padding="0"
@@ -122,10 +122,11 @@
                                                     Grid.Row="3" 
                                                     Margin="2"
                                                     Kind="HomeCityOutline"
+                                                    IsVisible="{Binding $parent[UserControl].DataContext.CanSeeUnits}"
                                                     Width="16"
                                                     Height="16"/>
                                                 <TextBlock 
-                                                    IsVisible="{Binding CanSeeUnits}"
+                                                    IsVisible="{Binding $parent[UserControl].DataContext.CanSeeUnits}"
                                                     Grid.Column="1" 
                                                     Margin="2"
                                                     Grid.Row="3" 

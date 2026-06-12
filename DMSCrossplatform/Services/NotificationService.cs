@@ -7,56 +7,54 @@ using DMSCrossplatform.Models.Dto;
 
 namespace DMSCrossplatform.Services;
 
-public class NotificationService: ObservableObject, INotificationService
+public partial class NotificationService: ObservableObject, INotificationService
 {
-    public ObservableCollection<MvNotificationsDto> Notifications { get; set; } = new();
-    
-    private readonly IDocumentService _doc;
+    [ObservableProperty]
+    private ObservableCollection<MvNotificationsDto> _notifications = new();
+
+    [ObservableProperty] private int _unreadCount;
+
     private readonly IPushService _push;
 
-    public NotificationService(IDocumentService doc, IPushService push)
+    public NotificationService(IPushService push)
     {
-        _doc = doc;
         _push = push;
-        
         _ = LoadNotificationsAsync();
-    }
-
-    private int _unreadCount;
-
-    public int UnreadCount
-    {
-        get => Notifications.Count(x => !x.IsRead);
-        set => SetProperty(ref _unreadCount, value);
     }
 
     public event EventHandler? NotificationReceived;
     public event EventHandler? Initialized;
 
+    private void RecalculateUnreadCount()
+    {
+        UnreadCount = Notifications.Count(x => !x.IsRead);
+    }
+
     public async Task AddNotification(int notificationId)
     {
         var notification = await _push.GetNotification(notificationId);
-        
-        Notifications.Add(notification);
-        
-        _unreadCount++;
-        
+
+        Notifications.Insert(0, notification);
+        RecalculateUnreadCount();
+
         NotificationReceived?.Invoke(this, EventArgs.Empty);
-        Notifications = new ObservableCollection<MvNotificationsDto>(Notifications.OrderByDescending(x => x.CreatedAt));
     }
 
     public async Task MarkRead()
     {
         await _push.MarkRead();
-        _ = LoadNotificationsAsync();
+        await LoadNotificationsAsync();
+        NotificationReceived?.Invoke(this, EventArgs.Empty);
     }
 
-   
-    private async Task LoadNotificationsAsync()
+    public async Task LoadNotificationsAsync()
     {
+        Notifications.Clear();
         var not = await _push.GetNotifications();
+        Notifications = new ObservableCollection<MvNotificationsDto>(
+            not.OrderByDescending(x => x.CreatedAt));
 
-        Notifications = new ObservableCollection<MvNotificationsDto>(not.OrderByDescending(x => x.CreatedAt));
+        RecalculateUnreadCount();
         Initialized?.Invoke(this, EventArgs.Empty);
     }
 }

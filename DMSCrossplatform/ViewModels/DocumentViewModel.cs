@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Android.Util;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using BarcodeLib.BarcodeReader;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DMSCrossplatform;
@@ -63,6 +64,9 @@ public partial class DocumentViewModel : ViewModelBase
     [ObservableProperty] private RouteGraphDto? _selectedSubmitRouteGraph;
     
     [ObservableProperty] private Bitmap _qrCodeBitmap;
+    
+
+    [ObservableProperty] private byte[] _qrCodeBytes;
 
     public DocumentViewModel(
         IDocumentService documentService,
@@ -380,6 +384,8 @@ public partial class DocumentViewModel : ViewModelBase
             if (Document.CurrentStepIndex == index)
             {
                 Mode = "all";
+                CanApprove = false;
+                CanReject = false;
             }
             await _documentService.ApproveAsync(Document.Id);
             await InitializeAsync(Document.Id);
@@ -432,7 +438,19 @@ public partial class DocumentViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Download()
+    private async Task DownloadQr()
+    {
+        if (_storageProvider == null || QrCodeBytes == null)
+        {
+            ErrorMessage = "Невозможно скачать файл";
+            return;
+        }
+        
+        await _downloadSaver.SaveAsync(QrCodeBytes, "qrcode.png", "image/png");
+    }
+
+    [RelayCommand]
+    private async Task Download()
     {
         if (_storageProvider == null)
         {
@@ -445,9 +463,11 @@ public partial class DocumentViewModel : ViewModelBase
             ErrorMessage = "URL для скачивания документа не найдена";
             return;
         }
-        var uri = new Uri(PdfUrl);
-        _downloadSaver
-            .SaveAsync(uri, Guid.NewGuid() + ".pdf", "application/pdf");
+     
+        var client = new HttpClient();
+        await using var stream = await client.GetStreamAsync(PdfUrl);
+        await _downloadSaver
+            .SaveAsync(stream, Guid.NewGuid() + ".pdf", "application/pdf");
 
     }
 
@@ -460,8 +480,8 @@ public partial class DocumentViewModel : ViewModelBase
             using var qrGenerator = new QRCodeGenerator();
             using var qrCodeData = qrGenerator.CreateQrCode(shareLink.ShareLink, QRCodeGenerator.ECCLevel.Q);
             using var qrCode = new PngByteQRCode(qrCodeData);
-            var qrCodeBytes = qrCode.GetGraphic(20);
-            var bitmap = new Bitmap(new MemoryStream(qrCodeBytes));
+            QrCodeBytes = qrCode.GetGraphic(20);
+            var bitmap = new Bitmap(new MemoryStream(QrCodeBytes));
             QrCodeBitmap = bitmap;
             ShowShareQr = true;
         }
@@ -470,6 +490,8 @@ public partial class DocumentViewModel : ViewModelBase
             _log.LogError(ex, "Failed to share document");
         }
     }
+    
+
     
 
     [RelayCommand]

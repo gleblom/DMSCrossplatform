@@ -15,7 +15,7 @@ public sealed class AndroidDownloadSaver : IDownloadSaver
     private static Context Context  => global::Android.App.Application.Context;
     
 
-    public async Task SaveAsync(Uri source, string suggestedFileName, string mimeType, CancellationToken ct = default)
+    public async Task SaveAsync(Stream content, string suggestedFileName, string mimeType, CancellationToken ct = default)
     {
         var resolver = Context.ContentResolver;
         var collection = MediaStore.Downloads.GetContentUri(MediaStore.VolumeExternalPrimary);
@@ -29,14 +29,13 @@ public sealed class AndroidDownloadSaver : IDownloadSaver
         var itemUri = resolver.Insert(collection, values)
                       ?? throw new IOException("Failed to create MediaStore item.");
 
+
         try
         {
-            using var http = new HttpClient();
-            await using var input = await http.GetStreamAsync(source, ct);
             await using var output = resolver.OpenOutputStream(itemUri)
                                      ?? throw new IOException("Failed to open output stream.");
 
-            await input.CopyToAsync(output, ct);
+            await content.CopyToAsync(output, ct);
         }
         finally
         {

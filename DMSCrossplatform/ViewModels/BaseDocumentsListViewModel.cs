@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
+using BarcodeLib.BarcodeReader;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DMSCrossplatform;
@@ -22,6 +26,7 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
     private readonly IDocumentService _documentService;
     private readonly IUserService _userService;
     private readonly IDictionariesService _dictionaryService;
+    private readonly IStorageProvider? _storageProvider;
     private readonly ILogger<ApiClient> _log;
     private readonly INavigationService<MenuRegionState> _navigationService;
     
@@ -36,7 +41,12 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
     [ObservableProperty] private UserFullDto? _selectedAuthor;
     [ObservableProperty] private ObservableCollection<DocumentFullReadDto> _documents = [];
     [ObservableProperty] private bool _isLoading = true;
+    [ObservableProperty] private bool _showUploadQr;
     [ObservableProperty] private string _loadingMessage = "Загрузка...";
+    [ObservableProperty] private string? _selectedFilePath;
+    [ObservableProperty] private string? _selectedFileName;
+    [ObservableProperty] private Bitmap _qrCodeBitmap;
+    
     
     private DocumentFullReadDto? _selectedDocument;
 
@@ -65,6 +75,7 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
         _navigationService = navigationService;
         _log = log;
         _dictionaryService = dictionaryService;
+        _storageProvider = App.storageProvider;
         _documentService = documentService;
         _userService = userService;
         _ = InitializeAsync();
@@ -171,6 +182,13 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
             );
     }
 
+    [RelayCommand]
+    private async Task Clear()
+    {
+       var documents = await LoadDocumentsAsync();
+       Documents = new ObservableCollection<DocumentFullReadDto>(documents);
+    }
+
     private async Task<IReadOnlyCollection<SimpleDto>> GetStatuses()
     {
         return  await _dictionaryService.GetStatusesAsync();
@@ -195,6 +213,89 @@ public partial class BaseDocumentsListViewModel: ViewModelBase
         App.SelectedDocumentId = documentId;
         DocumentViewModel.Mode = Mode;
         _navigationService.NavigateTo<DocumentViewModel>();
+    }
+      [RelayCommand]
+    private void ShowScanner() => ShowUploadQr = !ShowUploadQr;
+
+    [RelayCommand]
+    private async Task ScanQr()
+    {
+        try
+        {
+            var results = BarcodeReader.ReadBarcode(SelectedFilePath, BarcodeReader.QRCODE);
+            if (results != null && results.Length > 0)
+            {
+                foreach (var result in results)
+                {
+                    var cleanedData = NormalizeQrData(result.Data);
+                    var document = await _documentService.ConfirmShareLink(cleanedData);
+                    App.SelectedDocumentId = document.Id;
+                    _navigationService.NavigateTo<DocumentViewModel>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to scan document");
+        }
+    }
+    private string NormalizeQrData(string data)
+    {
+        if (string.IsNullOrWhiteSpace(data))
+            return data;
+        
+        var index = data.IndexOf("api/");
+        if (index > 0)
+            data = data.Substring(index);
+
+        return data;
+    }
+
+
+    [RelayCommand]
+    private async Task UploadQr()
+    {
+        try
+        {
+            if (_storageProvider == null)
+            {
+                return;
+            }
+            var options = new FilePickerOpenOptions
+            {
+                Title = "Выберите документ",
+                AllowMultiple = false,
+                FileTypeFilter =
+                [
+                    new FilePickerFileType("Документы")
+                    {
+                        Patterns = ["*.png"],
+                        MimeTypes =
+                        [
+                            "image/png"
+                        ]
+                    }
+                ]
+            };
+
+            var files = await _storageProvider.OpenFilePickerAsync(options);
+
+            if (files.Count == 1)
+            {
+                var file = files[0];
+                SelectedFilePath = file.Path.LocalPath;
+                SelectedFileName = file.Name;
+
+
+                byte[] fileBytes = File.ReadAllBytes(SelectedFilePath);
+                var bitmap = new Bitmap(new MemoryStream(fileBytes));
+                QrCodeBitmap = bitmap;
+            }
+        }
+        catch(Exception ex)
+        {
+            _log.LogError(ex, "Failed to show scanner");
+        }
     }
 
 

@@ -27,6 +27,4 @@ public sealed class SimplePdfDocument : IPdfDocumentSource
 
         return (page.GetPageWidth(), page.GetPageHeight());
     }
-
-    public byte[] GetBytes() => _bytes;
 }

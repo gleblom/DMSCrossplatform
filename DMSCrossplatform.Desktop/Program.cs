@@ -29,6 +29,8 @@ sealed class Program
     private static INotificationService _notificationService;
     private static ILogger<WindowsPushNotifications> _logger;
     private static IDocumentService _documentService;
+    private static IPushService _pushService;
+    private static ISessionService _sessionService;
     
     [STAThread]
     public static void Main(string[] args) => BuildAvaloniaApp()
@@ -41,13 +43,12 @@ sealed class Program
         
         var services = App.ServiceCollection;
         services.AddPlatformServices();
-        Bootstrap.Initialize(0x00020013);
+        // Bootstrap.Initialize(0x00020013);
         
         AppNotificationManager.Default.NotificationInvoked += OnNotificationClicked;
         PushNotificationManager.Default.PushReceived += OnPushReceived;
         AppNotificationManager.Default.Register();
-        PushNotificationManager.Default.Register();
-        
+        PushNotificationManager.Default.Register(); ;
         
         
         // var provider = services.BuildServiceProvider();
@@ -80,7 +81,10 @@ sealed class Program
         {
             _logger = App.Services.GetRequiredService<ILogger<WindowsPushNotifications>>();
             _notificationService = App.Services.GetRequiredService<INotificationService>();
+            _pushService = App.Services.GetRequiredService<IPushService>();
+            _sessionService = App.Services.GetRequiredService<ISessionService>();
             var doc = new XmlDocument();
+            
             
             var payloadBytes = args.Payload;
             var xmlPayload = Encoding.UTF8.GetString(payloadBytes);
@@ -89,8 +93,6 @@ sealed class Program
             
             var toastNode = doc.SelectSingleNode("toast");
             
-            var appNotification = new AppNotification(xmlPayload);
-            AppNotificationManager.Default.Show(appNotification);
             if (toastNode != null && toastNode.Attributes.GetNamedItem("launch") != null)
             {
                 var launchPayload = toastNode.Attributes.GetNamedItem("launch").Value;
@@ -99,9 +101,15 @@ sealed class Program
                 var notifId = query["notification_id"];
                 if (notifId != null)
                 {
+                    
+                    var notification = await _pushService.GetNotification(int.Parse(notifId));
+
+                    if (_sessionService.CurrentUser == null ||
+                        notification.UserId != _sessionService.CurrentUser?.UserId) return;
+                    var appNotification = new AppNotification(xmlPayload);
+                    AppNotificationManager.Default.Show(appNotification);
                     await _notificationService.AddNotification(int.Parse(notifId));
                 }
-
             }
         }
         catch (Exception ex)

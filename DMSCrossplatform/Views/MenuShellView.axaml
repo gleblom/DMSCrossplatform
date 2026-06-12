@@ -60,13 +60,6 @@
             </StackPanel>
         </Button>
         
-        <!-- <Button IsVisible="{Binding CanSeeDocs}" Command="{Binding NavigateIncomingDocsCommand}" Classes="flat" > -->
-        <!--     <StackPanel Orientation="Horizontal" Spacing="3"> -->
-        <!--         <avalonia:MaterialIcon Kind="InboxArrowDownOutline" Width="25" Height="25"/> -->
-        <!--         <TextBlock Margin="15,10" HorizontalAlignment="Center" -->
-        <!--                    Text="Входящие"/> -->
-        <!--     </StackPanel> -->
-        <!-- </Button> -->
         
         <Button Command="{Binding NavigateNotificationsCommand}" IsVisible="{Binding IsNotificationsVisible}" Classes="flat">
             <StackPanel Orientation="Horizontal" Spacing="3">
@@ -102,9 +95,9 @@
             </StackPanel>
         </Button>
         
-        <Button Command="{Binding NavigateScannerCommand}" Classes="flat">
+        <Button IsVisible="{OnPlatform Android='true', Default='false'}" Command="{Binding NavigateScannerCommand}" Classes="flat">
             <StackPanel Orientation="Horizontal" Spacing="3">
-                <avalonia:MaterialIcon Kind="BarcodeScanner" Width="25" Height="25"/>
+                <avalonia:MaterialIcon Kind="QrcodeScan" Width="25" Height="25"/>
                 <TextBlock Margin="15,10" HorizontalAlignment="Center"
                            Text="Сканер документов"/>
             </StackPanel>
@@ -131,7 +124,7 @@
                 <SplitView.Content>
                     <Grid RowDefinitions="Auto,*" ColumnDefinitions="*, Auto">
                         <Border Padding="12">
-                            <Grid Grid.ColumnDefinitions="*, Auto" HorizontalAlignment="Left">
+                            <Grid ColumnDefinitions="*, Auto" HorizontalAlignment="Left">
                                 <TextBlock FontWeight="Bold" TextWrapping="Wrap"
                                            FontSize="24" VerticalAlignment="Center"
                                            Text="Электронный архив корпоративной документации"/>
@@ -150,6 +143,9 @@
                         <StackPanel Background="{DynamicResource DmsSurfaceBrush}">
                             <Button HorizontalAlignment="Right" Command="{Binding ToggleNotificationPaneCommand}" Classes="flat">
                                 <avalonia:MaterialIcon Kind="Close" Width="20"></avalonia:MaterialIcon>
+                            </Button>
+                            <Button HorizontalAlignment="Right" Command="{Binding RefreshCommand}" Classes="flat">
+                                <avalonia:MaterialIcon Kind="Refresh" Width="20"></avalonia:MaterialIcon>
                             </Button>
                             <ContentControl Content="{Binding Notification}"></ContentControl>
                         </StackPanel>

@@ -16,22 +16,26 @@ namespace DMSCrossplatform.ViewModels;
 public partial class NotificationViewModel: ViewModelBase
 {
     private readonly INavigationService<MenuRegionState> _nav;
-    private readonly IPushService _doc;
+    private readonly INotificationService _notification;
+    private readonly IPushService _pushService;
     
     [ObservableProperty] private ObservableCollection<MvNotificationsDto>  _notifications;
 
-    public NotificationViewModel(INavigationService<MenuRegionState> nav, IPushService doc)
+    public NotificationViewModel(
+        INavigationService<MenuRegionState> nav, 
+        INotificationService notification, IPushService pushService)
     {
         _nav = nav;
-        _doc = doc;
-       _ = LoadDocumentsAsync();
+        _notification = notification;
+        _pushService = pushService;
+        _ = LoadNotificationsAsync();
     }
 
-    private async Task LoadDocumentsAsync()
+    private async Task LoadNotificationsAsync()
     {
-        var docs = await _doc.GetNotifications();
+        await _notification.LoadNotificationsAsync();
 
-        Notifications = new ObservableCollection<MvNotificationsDto>(docs.OrderByDescending(x => x.CreatedAt));
+        Notifications = _notification.Notifications;
     }
 
     [RelayCommand]
@@ -47,9 +51,12 @@ public partial class NotificationViewModel: ViewModelBase
     }
 
     [RelayCommand]
-    private void DeleteNotification()
+    private async Task DeleteNotification(int? notificationId)
     {
-        
+        if (notificationId == null)
+            return;
+        await _pushService.DeleteNotification(notificationId.Value);
+        await  LoadNotificationsAsync();
     }
     
     

@@ -137,16 +137,11 @@ public class AuthenticatorSelectionDto
     [JsonProperty("userVerification")]
     public string UserVerification { get; set; }
 }
-public enum PasskeyState
-{
-    Disabled,
-    EnabledThisDevice,  
-}
 
 public class PasskeyStatusDto
 {
     [JsonProperty("state")]
-    public PasskeyState State { get; set; }
+    public string State { get; set; }
     
     [JsonProperty("active_count")]
     public int ActiveCount { get; set; }
@@ -158,7 +153,7 @@ public class PasskeyStatusDto
 public class PasskeyCredentialDto
 {
     [JsonProperty("credential_id")]
-    public string CredentialId { get; set; }
+    public string? CredentialId { get; set; }
     
     [JsonProperty("device_id")]
     public string? DeviceId { get; set; }
@@ -168,6 +163,9 @@ public class PasskeyCredentialDto
     
     [JsonProperty("is_platform")]
     public bool IsPlatform { get; set; }
+    
+    [JsonProperty("is_revoked")]
+    public bool IsRevoked { get; set; }
     
     [JsonProperty("created_at")]
     public DateTime CreatedAt { get; set; }

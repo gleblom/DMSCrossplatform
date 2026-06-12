@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DMSCrossplatform.Infrastructure.Navigation;
 using DMSCrossplatform.Services;
 
@@ -13,6 +14,7 @@ public partial class StartupShellViewModel : ViewModelBase
     private readonly INavigationService<StartupRegionState> _navigation;
     private readonly ISessionService _session;
     private readonly IAuthService _auth;
+    [ObservableProperty] private bool _isLoading;
     private readonly ShellHost _shellHost;
 
     public StartupRegionState Region { get; }
@@ -24,6 +26,7 @@ public partial class StartupShellViewModel : ViewModelBase
         ISessionService session,
         IAuthService auth)
     {
+        IsLoading = true;
         Region = region;
         _shellHost = shellHost;
         _auth = auth;
@@ -32,14 +35,14 @@ public partial class StartupShellViewModel : ViewModelBase
         _session.AuthStateChanged += OnAuthStateChanged;
 
         _navigation.NavigateTo<LoginViewModel>();
-
-        // Android debug startup is tight: encrypted storage is restored after the
-        // first startup view is available, and UI changes are marshalled below.
+        
         _ = Task.Run(session.LoadStoredAsync);
+        IsLoading = false;
     }
 
     private async Task LoadUserInfo()
     {
+  
         _session.CurrentUser = await _auth.GetMeAsync();
     }
 
@@ -48,6 +51,7 @@ public partial class StartupShellViewModel : ViewModelBase
         if (!_session.IsAuthenticated)
         {
             await Dispatcher.UIThread.InvokeAsync(() => _navigation.NavigateTo<LoginViewModel>());
+            IsLoading = false;
             return;
         }
 
@@ -58,6 +62,7 @@ public partial class StartupShellViewModel : ViewModelBase
         catch
         {
             await Dispatcher.UIThread.InvokeAsync(() => _navigation.NavigateTo<LoginViewModel>());
+            IsLoading = false;
             return;
         }
 
@@ -65,6 +70,7 @@ public partial class StartupShellViewModel : ViewModelBase
         {
             if (_session.CurrentUser?.RoleId == 1 && _session.CurrentUser.CompanyId == null)
             {
+                IsLoading = false;
                 _navigation.NavigateTo<CompanyCreateViewModel>();
                 return;
             }
@@ -73,10 +79,12 @@ public partial class StartupShellViewModel : ViewModelBase
                 _session.CurrentUser.SecondName == null ||
                 _session.CurrentUser.ThirdName == null)
             {
+                IsLoading = false;
                 _navigation.NavigateTo<ProfileCreateViewModel>();
                 return;
             }
 
+            IsLoading = false;
             _shellHost.ShowMenu();
         });
     }

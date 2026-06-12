@@ -34,4 +34,5 @@ public interface IAuthService
     Task<IReadOnlyList<PasskeyCredentialDto>> GetPasskeysAsync(CancellationToken ct = default);
     Task<IReadOnlyList<string>> RevokePasskeyAsync(string credentialId, CancellationToken ct = default);
 
+    Task<IReadOnlyList<string>> EnablePasskeyAsync(string credentialId, CancellationToken ct = default);
 }

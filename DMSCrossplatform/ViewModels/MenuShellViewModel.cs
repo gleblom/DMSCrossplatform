@@ -126,6 +126,12 @@ public partial class MenuShellViewModel : ViewModelBase
         var count = _notificationService.UnreadCount;
         NotificationsCount = count;
     }
+
+    [RelayCommand]
+    private void Refresh()
+    {
+        _notificationService.LoadNotificationsAsync();
+    }
     
     [RelayCommand]
     private void TogglePane() => IsPaneOpen = !IsPaneOpen;

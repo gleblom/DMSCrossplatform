@@ -5,7 +5,7 @@
         x:Class="DMSCrossplatform.Views.MainWindow"
         x:CompileBindings="False"
         Icon="/Assets/avalonia-logo.ico"
-        Title="DMSCrossplatform">
+        Title="Электронный архив корпоративной документации">
         <ContentControl Content="{Binding CurrentShell}" />
         <!-- <custom:RouteEditorView/> -->
 </Window>

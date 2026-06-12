@@ -10,4 +10,6 @@ public interface IAndroidPermissionRequester
     Task<bool> RequestCameraAsync(Activity activity);
     
     Task<bool> RequestNotificationAsync(Activity activity);
+
+    Task RevokeNotificationAsync(Activity activity);
 }

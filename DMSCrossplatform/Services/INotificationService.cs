@@ -16,4 +16,6 @@ public interface INotificationService
     Task MarkRead();
     
     int UnreadCount { get; set; }
+
+    Task LoadNotificationsAsync();
 }

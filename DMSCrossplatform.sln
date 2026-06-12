@@ -6,10 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSCrossplatform.Android", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSCrossplatform.Desktop", "DMSCrossplatform.Desktop\DMSCrossplatform.Desktop.csproj", "{040AEDF4-705D-4173-8BFD-6259FA7E0ABD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSCrossplatform.iOS", "DMSCrossplatform.iOS\DMSCrossplatform.iOS.csproj", "{B164FEE8-68DF-4A5C-838B-2AC2DD709701}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMSCrossplatform.Browser", "DMSCrossplatform.Browser\DMSCrossplatform.Browser.csproj", "{0B699549-6C62-4728-8E32-B0D5104CA9EE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,15 +26,5 @@ Global
 		{040AEDF4-705D-4173-8BFD-6259FA7E0ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{040AEDF4-705D-4173-8BFD-6259FA7E0ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{040AEDF4-705D-4173-8BFD-6259FA7E0ABD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B164FEE8-68DF-4A5C-838B-2AC2DD709701}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B164FEE8-68DF-4A5C-838B-2AC2DD709701}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B164FEE8-68DF-4A5C-838B-2AC2DD709701}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{B164FEE8-68DF-4A5C-838B-2AC2DD709701}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B164FEE8-68DF-4A5C-838B-2AC2DD709701}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B164FEE8-68DF-4A5C-838B-2AC2DD709701}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{0B699549-6C62-4728-8E32-B0D5104CA9EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B699549-6C62-4728-8E32-B0D5104CA9EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B699549-6C62-4728-8E32-B0D5104CA9EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B699549-6C62-4728-8E32-B0D5104CA9EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

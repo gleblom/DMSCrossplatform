@@ -104,7 +104,7 @@
                         <controls:Card Margin="0,0,0,8">
                             <Button
                                 Command="{Binding $parent[UserControl].DataContext.OpenDocumentCommand}" 
-                                CommandParameter="{Binding}" 
+                                CommandParameter="{Binding Id}" 
                                 Background="Transparent" 
                                 BorderThickness="0"
                                 Padding="0"
@@ -192,7 +192,7 @@
      </OnPlatform.Android>
         <!-- -Desktop, Browser -->
     
-         <On Options="Windows, Linux, Browser" >
+         <On Options="Default" >
     
              <Grid Background="{DynamicResource LinearGradientBackgroundBrush}" RowDefinitions="Auto,*">
                  <StackPanel Orientation="Horizontal"  Grid.Row="0" Margin="8,32,0,10">
@@ -256,7 +256,15 @@
                              </DatePicker>
                          </controls:Card>
                      </StackPanel>
-    
+                     <StackPanel Spacing="16" VerticalAlignment="Center">
+                         <Button Classes="flat" IsVisible="{OnPlatform Android='false', Default='true'}"
+                                 Command="{Binding ShowScannerCommand}">
+                             <StackPanel Margin="5" Orientation="Horizontal">
+                                 <TextBlock Text="Сканировать QR-код"></TextBlock>
+                                 <avalonia:MaterialIcon Kind="QrcodeScan"></avalonia:MaterialIcon>
+                             </StackPanel>
+                         </Button>
+                     </StackPanel>
                  </StackPanel>
     
          <DataGrid x:Name="DocumentGrid"
@@ -290,6 +298,37 @@
                                       IsVisible="{Binding IsLoading}"/>
                          <TextBlock Text="Открытие документа..." FontSize="14"/>
                      </StackPanel>
+                 </Border>
+                 <Border Grid.Row="0" Grid.RowSpan="2"
+                         IsVisible="{Binding ShowUploadQr}"
+                         Background="#80000000">
+                     <Border Background="{DynamicResource DmsSurfaceBrush}"
+                             BorderBrush="{DynamicResource MaterialDividerBrush}"
+                             BorderThickness="1"
+                             CornerRadius="8"
+                             Padding="24"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
+                         <Border>
+                             <StackPanel>
+                                 <Image Source="{Binding QrCodeBitmap}"  Width="200" Height="200"></Image>
+                                 <StackPanel Orientation="Horizontal">
+                                     <Button Command="{Binding ShowScannerCommand}"
+                                             Classes="flat">
+                                         <TextBlock Text="Отмена"/>
+                                     </Button>
+                                     <Button Command="{Binding UploadQrCommand}" Classes="flat">
+                                         <TextBlock Text="Загрузить QR"/>
+                                     </Button>
+                                     <Button Command="{Binding ScanQrCommand}" Classes="flat">
+                                         <TextBlock Text="Cканировать QR"/>
+                                     </Button>
+                                 </StackPanel>
+                             </StackPanel>
+                    
+                         </Border>
+                     </Border>
+            
                  </Border>
          </Grid>
      </On> 

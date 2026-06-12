@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="clr-namespace:DMSCrossplatform.Views"
              xmlns:controls="clr-namespace:DMSCrossplatform.Pdf.Controls"
+             xmlns:global="clr-namespace:"
              x:Class="DMSCrossplatform.Views.PdfControl">
 
     <Grid>

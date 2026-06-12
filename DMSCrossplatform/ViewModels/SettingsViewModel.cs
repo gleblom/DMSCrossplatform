@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,6 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 using DMSCrossplatform.Infrastructure;
 using DMSCrossplatform.Infrastructure.Android;
 using DMSCrossplatform.Infrastructure.Api;
+using DMSCrossplatform.Infrastructure.Storage;
 using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +33,11 @@ public partial class SettingsViewModel: ViewModelBase
     private readonly IAndroidActivityHost _androidActivityHost;
     private readonly IAndroidGetFcmToken _androidGetFcmToken;
     private readonly IAndroidPermissionRequester  _androidPermissionRequester;
+    private readonly IAndroidPasskeySignalSync? _androidPasskeySignalSync;
     private readonly IWindowsGetChannelUri  _windowsGetChannelUri;
+    private readonly IDeviceIdentityStore _deviceIdentityStore;
+    private readonly AppSettings _settings;
+    private string? _deviceId;
     
     
     [ObservableProperty] private bool _isBusy;
@@ -40,6 +49,9 @@ public partial class SettingsViewModel: ViewModelBase
     [ObservableProperty] private string _authCode;
     [ObservableProperty] private bool? _passkeyEnabled;
     [ObservableProperty] private bool? _otpEnabled;
+    [ObservableProperty] private bool? _isPushEnabled;
+    [ObservableProperty] private bool? _isDevicePasskeyEnabled;
+    [ObservableProperty] private ObservableCollection<PasskeyCredentialDto> _credentials;
 
     public SettingsViewModel(
         ILogger<SettingsViewModel> log,
@@ -47,7 +59,9 @@ public partial class SettingsViewModel: ViewModelBase
         IWebAuthnClient webAuthnClient, 
         ISessionService sessionService, 
         IPushService pushService,
-        IWindowsGetChannelUri windowsGetChannelUri
+        IWindowsGetChannelUri windowsGetChannelUri,
+        IDeviceIdentityStore deviceIdentityStore,
+        AppSettings settings
         )
     {
        
@@ -56,6 +70,8 @@ public partial class SettingsViewModel: ViewModelBase
         _webAuthnClient = webAuthnClient;
         _sessionService = sessionService;
         _pushService = pushService;
+        _deviceIdentityStore = deviceIdentityStore;
+        _settings = settings;
         _ = LoadUserAsync();
 
         _windowsGetChannelUri = windowsGetChannelUri;
@@ -69,7 +85,10 @@ public partial class SettingsViewModel: ViewModelBase
         IPushService pushService,
         IAndroidActivityHost host,
         IAndroidGetFcmToken  fcmToken,
-        IAndroidPermissionRequester permissionRequester
+        IAndroidPermissionRequester permissionRequester,
+        IAndroidPasskeySignalSync androidPasskeySignalSync,
+        IDeviceIdentityStore deviceIdentityStore,
+        AppSettings settings
     )
     {
         _log = log;
@@ -77,18 +96,53 @@ public partial class SettingsViewModel: ViewModelBase
         _webAuthnClient = webAuthnClient;
         _sessionService = sessionService;
         _pushService = pushService;
+        _deviceIdentityStore = deviceIdentityStore;
+        _settings = settings;
         _ = LoadUserAsync();
         
         _androidActivityHost = host;
         _androidGetFcmToken = fcmToken;
         _androidPermissionRequester = permissionRequester;
+        _androidPasskeySignalSync = androidPasskeySignalSync;
     }
 
     private async Task LoadUserAsync()
     {
         User = await _authService.GetMeAsync();
         OtpEnabled = User.OtpEnabled;
+        _deviceId = await _deviceIdentityStore.GetOrCreateAsync();
         _sessionService.CurrentUser = User;
+        await LoadDeviceSettingsAsync();
+    }
+
+    private async Task LoadDeviceSettingsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_deviceId))
+            return;
+
+        try
+        {
+            var pushStatus = await _pushService.GetDeviceStatus(_deviceId);
+            IsPushEnabled = pushStatus.UserPushEnabled && pushStatus.DevicePushEnabled;
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            IsPushEnabled = false;
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "Ошибка получения статуса push-уведомлений");
+        }
+
+        try
+        {
+            var credentials = await _authService.GetPasskeysAsync();
+            Credentials = new ObservableCollection<PasskeyCredentialDto>(credentials);
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "Ошибка получения статуса ключа безопасности");
+        }
     }
 
     private Bitmap GenerateQrCode(string otpAuthUrl)
@@ -188,13 +242,14 @@ public partial class SettingsViewModel: ViewModelBase
     
 
     [RelayCommand]
-    public async Task EnablePasskey()
+    private async Task TogglePasskey(string credentialId)
     {
         ErrorMessage = null;
         try
         {
+            var deviceId = await GetDeviceIdAsync();
             var webautn = await _authService.WebauthnRegisterOptionsAsync();
-            
+
             JsonSerializerOptions options = null;
 
             if (OperatingSystem.IsAndroid())
@@ -202,10 +257,10 @@ public partial class SettingsViewModel: ViewModelBase
                 options = new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true 
+                    WriteIndented = true
                 };
             }
-            
+
             var jsonOptions = JsonSerializer.Serialize(webautn.Options, options);
 
             var osResponse = await _webAuthnClient.RegisterAsync(jsonOptions);
@@ -213,9 +268,13 @@ public partial class SettingsViewModel: ViewModelBase
             await _authService.WebauthnRegisterFinishAsync(new WebAuthnFinishRequestDto
             {
                 ChallengeId = webautn.ChallengeId,
-                Credential = JToken.Parse(osResponse)
+                Credential = JToken.Parse(osResponse),
+                DeviceId = deviceId,
+                DeviceName = GetDeviceName()
             });
             User = await _authService.GetMeAsync();
+            
+            await LoadUserAsync();
         }
         catch (ApiException ex)
         {
@@ -223,20 +282,35 @@ public partial class SettingsViewModel: ViewModelBase
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Операция отменена пользователем");
+            _log.LogWarning(ex, "Объект уже существует");
+        }
+        finally
+        {
+            _ = LoadDeviceSettingsAsync();
         }
     }
 
     [RelayCommand]
-    private async Task EnablePush()
+    private async Task TogglePush()
     {
         ErrorMessage = null;
+        var targetState = IsPushEnabled == true;
         try
         {
-#if Android
+            if (!targetState)
+            {
+             
+                await DisablePushAsync();
+                IsPushEnabled = false;
+                return;
+            }
+            
+            var deviceId = await GetDeviceIdAsync();
+#if  Android
+
             if (OperatingSystem.IsAndroid())
             {
-                
+                Console.WriteLine($"Device target state: {deviceId}");
                 var activity = _androidActivityHost.Current
                                ?? throw new InvalidOperationException("Android activity is not available.");
                 var granted = await _androidPermissionRequester.RequestNotificationAsync(activity);
@@ -251,13 +325,12 @@ public partial class SettingsViewModel: ViewModelBase
                 {
                     return;
                 }
-            
+                Console.WriteLine($"FirebaseToken: {token}");
                 await _pushService.RegisterDevice(new DeviceRegisterDto()
                 {
-                    DeviceId = Guid.NewGuid().ToString(),
-                    Platform = "Android",
+                    DeviceId = deviceId,
+                    Platform = "android",
                     PushToken = token,
-                    UserId = _sessionService.CurrentUser.UserId
                 });
             }
 #endif
@@ -268,16 +341,88 @@ public partial class SettingsViewModel: ViewModelBase
                 {
                      await _pushService.RegisterDevice(new DeviceRegisterDto()
                     {
-                        DeviceId = Guid.NewGuid().ToString(),
-                        Platform = "Windows",
+                        DeviceId = deviceId,
+                        Platform = "windows",
                         PushToken = pushChannel
                     });
                 }
             }
+
+            await _pushService.UpdateDeviceStatus(deviceId, new DeviceUpdateDto { PushEnabled = true });
+            IsPushEnabled = true;
         }
         catch(Exception ex)
         {
-            ErrorMessage = ex.Message;
+            IsPushEnabled = !targetState;
         }
+    }
+
+    private async Task DisablePushAsync()
+    {
+        var deviceId = await GetDeviceIdAsync();
+        await _pushService.UpdatePushSettings(new PushSettingsUpdateDto { PushEnabled = false });
+
+        try
+        {
+            await _pushService.UpdateDeviceStatus(deviceId, new DeviceUpdateDto { PushEnabled = false });
+        }
+        catch (ApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+        }
+
+#if  Android
+        if (OperatingSystem.IsAndroid())
+        {
+            var activity = _androidActivityHost.Current
+                           ?? throw new InvalidOperationException("Android activity is not available.");
+            await _androidPermissionRequester.RevokeNotificationAsync(activity);
+        }
+#endif
+    }
+
+    [RelayCommand]
+    private async Task DisablePasskey(string credentialId)
+    {
+        try
+        {
+            await _authService.RevokePasskeyAsync(credentialId);
+
+            IReadOnlyList<string> activeCredentialIds = Credentials
+                .Where(c => c.CredentialId == credentialId)
+                .Select(c => c.CredentialId)
+                .ToArray();
+            if (OperatingSystem.IsAndroid() && _androidPasskeySignalSync is not null)
+            {
+                var rpId = GetRpId();
+                await _androidPasskeySignalSync.SignalAcceptedIdsAsync(
+                    rpId,
+                    _sessionService.CurrentUser?.UserId,
+                    activeCredentialIds,
+                    CancellationToken.None);
+            }
+
+            await LoadDeviceSettingsAsync();
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex.Message);
+        }
+    }
+
+    private async Task<string> GetDeviceIdAsync()
+        => _deviceId ??= await _deviceIdentityStore.GetOrCreateAsync();
+
+    private string GetDeviceName()
+    {
+        if (OperatingSystem.IsAndroid())
+            return $"Android {Android.OS.Build.Model}";
+
+
+        return Environment.MachineName;
+    }
+
+    private string GetRpId()
+    {
+        return "linuxserver.tailea0f78.ts.net";
     }
 }

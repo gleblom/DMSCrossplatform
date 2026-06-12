@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DMSCrossplatform.Infrastructure.Policy;
 using DMSCrossplatform.Models.Dto;
 using DMSCrossplatform.Services;
 using DMSCrossplatform.ViewModels.Custom;
@@ -21,6 +22,7 @@ public partial class UploadDocumentViewModel: ViewModelBase
         private readonly IDictionariesService _dictionariesService;
         private readonly IStorageProvider? _storageProvider;
         private readonly ISessionService _sessionService;
+        private readonly IPolicy _policy; 
 
         [ObservableProperty] private string? _selectedFileName;
         [NotifyCanExecuteChangedFor(nameof(SubmitCommand))]
@@ -47,8 +49,13 @@ public partial class UploadDocumentViewModel: ViewModelBase
         public IAsyncRelayCommand SubmitCommand { get; }
 
 
-        public UploadDocumentViewModel(IDictionariesService dictionariesService, IDocumentService documentService, ISessionService sessionService)
+        public UploadDocumentViewModel(
+            IPolicy policy,
+            IDictionariesService dictionariesService, 
+            IDocumentService documentService, 
+            ISessionService sessionService)
         {
+            _policy = policy;
             _dictionariesService = dictionariesService;
             _documentService = documentService;
             _sessionService = sessionService;
@@ -62,8 +69,20 @@ public partial class UploadDocumentViewModel: ViewModelBase
 
         private async Task LoadCategories()
         {
-            var categories = await _dictionariesService.GetCategoriesAsync();
-            Categories = new ObservableCollection<SimpleDto>(categories);
+            if (_policy is DirectorPolicy)
+            {
+                var categories = await _dictionariesService.GetCategoriesAsync();
+                Categories = new ObservableCollection<SimpleDto>(categories);
+            }
+            else
+            {
+                var selectedCategoryIds = (await _dictionariesService.GetRoleCategoriesAsync(_sessionService.CurrentUser.RoleId))
+                    .Select(c => c.CategoryId)
+                    .ToHashSet();
+            
+                var categories = await _dictionariesService.GetCategoriesAsync();
+                Categories = new ObservableCollection<SimpleDto>(categories.Where(c => selectedCategoryIds.Contains(c.Id)));
+            }
         }
 
         private async Task SelectFileAsync()

@@ -2,7 +2,7 @@
 
 public class AppSettings
 {
-    public string ApiBaseUrl { get; set; } = "http://127.0.0.1:8000";
+    public string ApiBaseUrl { get; set; } = "https://linuxserver.tailea0f78.ts.net/";
     public int MaxLoginAttempts { get; set; } = 5;
     public int LoginLockoutSeconds { get; set; } = 60;
 

@@ -57,10 +57,18 @@ public partial class App : Application
         }
         else if (ApplicationLifetime is IActivityApplicationLifetime singleViewFactoryApplicationLifetime)
         {
-            singleViewFactoryApplicationLifetime.MainViewFactory = () => new MainView
+            var mainView = new MainView()
             {
                 DataContext = shell
             };
+            singleViewFactoryApplicationLifetime.MainViewFactory = () => mainView;
+
+            mainView.Loaded += (_, _) =>
+            {
+                var topLevel = TopLevel.GetTopLevel(mainView);
+                storageProvider = topLevel?.StorageProvider;
+            };
+            
         }
         
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
@@ -70,8 +78,6 @@ public partial class App : Application
                 DataContext = shell
             };
             storageProvider = TopLevel.GetTopLevel(singleViewPlatform.MainView)?.StorageProvider;
-        
-        
         }
 
         base.OnFrameworkInitializationCompleted();

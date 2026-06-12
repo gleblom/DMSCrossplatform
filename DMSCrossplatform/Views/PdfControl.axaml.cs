@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using DMSCrossplatform.Pdf.Abstractions;
 using DMSCrossplatform.Pdf.Controls;
 using DMSCrossplatform.Pdf.Models;
 using DMSCrossplatform.Pdf.Rendering;
@@ -50,15 +51,15 @@ public partial class PdfControl : UserControl
 
         try
         {
-            // Загружаем PDF файл
+
             using var httpClient = new HttpClient();
             var pdfBytes = await httpClient.GetByteArrayAsync(url);
 
-            // Сохраняем во временный файл для SimplePdfDocument
+  
             var tempFile = Path.GetTempFileName();
             await File.WriteAllBytesAsync(tempFile, pdfBytes);
 
-            // Создаем PDF документ и rasterizer
+
             var pdfDocument = new SimplePdfDocument(tempFile);
             var rasterizer = new DocnetRasterizer(pdfBytes);
 

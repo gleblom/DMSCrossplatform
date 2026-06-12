@@ -66,6 +66,7 @@ public class MvNotificationsDto
     [JsonProperty("data")] public Dictionary<string, string>? Data { get; set; } = new ();
     [JsonProperty("is_read")] public bool IsRead { get; set; }
     [JsonProperty("id")] public int NotificationId { get; set; }
+    [JsonProperty("user_id")] public Guid UserId { get; set; }
     [JsonProperty("document_id")] public Guid Id { get; set; }
     [JsonProperty("created_at")] public DateTime CreatedAt { get; set; }
 

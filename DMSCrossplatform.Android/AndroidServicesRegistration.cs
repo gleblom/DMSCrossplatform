@@ -17,6 +17,7 @@ public static class AndroidServicesRegistration
         services.AddSingleton<IAndroidActivityHost, AndroidActivityHost>();
         services.AddSingleton<IAndroidPermissionRequester, AndroidPermissionRequester>();
         services.AddSingleton<IAndroidGetFcmToken, MyFirebaseMessagingService>();
+        services.AddSingleton<IAndroidPasskeySignalSync, AndroidPasskeySignalSync>();
 
         return services;
     }

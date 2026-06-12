@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,6 +17,7 @@ using DMSCrossplatform.Infrastructure.Navigation;
 using DMSCrossplatform.Services;
 using DMSCrossplatform.ViewModels;
 using Firebase.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DMSCrossplatform.Android;
 
@@ -30,10 +31,13 @@ public class MyFirebaseMessagingService : FirebaseMessagingService, IAndroidGetF
     private const string ChannelId = "push_high";
     private const int NotificationId = 1001;
     private const string DiagPrefs = "fcm_diag";
+    private static IPushService _pushService;
+    private static ISessionService _sessionService;
     
-    
-    public override void OnMessageReceived(RemoteMessage message)
+    public async override void OnMessageReceived(RemoteMessage message)
     {
+        _pushService = App.Services.GetRequiredService<IPushService>();
+        _sessionService = App.Services.GetRequiredService<ISessionService>();
         base.OnMessageReceived(message);
 
         FcmDiag.Mark(this, "on_message_received", DumpMessageBrief(message));
@@ -44,6 +48,14 @@ public class MyFirebaseMessagingService : FirebaseMessagingService, IAndroidGetF
             FcmDiag.Mark(this, "readiness",
                 $"enabled={readiness.Enabled}; perm={readiness.PostNotificationsGranted}; channelImp={readiness.ChannelImportance}");
 
+            var id = message.Data.ContainsKey("notification_id") ? message.Data["notification_id"] : string.Empty;
+
+            var notification = await _pushService.GetNotification(int.Parse(id));
+
+            if (notification != null && _sessionService.CurrentUser.UserId != notification.UserId)
+            {
+                return;
+            }
 
             if (NeedsHeavyProcessing(message))
             {
@@ -57,7 +69,7 @@ public class MyFirebaseMessagingService : FirebaseMessagingService, IAndroidGetF
             ShowNotification(
                 title: message.GetNotification()?.Title ?? "Новое сообщение",
                 body: message.GetNotification()?.Body ?? "(без текста)",
-                extras: null);
+                extras: message.Data);
             
             
 
@@ -98,7 +110,6 @@ public class MyFirebaseMessagingService : FirebaseMessagingService, IAndroidGetF
             .PutString("from", message.From ?? string.Empty)
             .PutString("title", message.GetNotification()?.Title ?? string.Empty)
             .PutString("body", message.GetNotification()?.Body ?? string.Empty)
-            .PutString("dataJson", JsonSerializer.Serialize(message.Data))
             .Build();
 
         var request = new OneTimeWorkRequest.Builder(typeof(FcmHeavyWorker))
@@ -225,7 +236,6 @@ public class FcmHeavyWorker : Worker
             var dataJson = InputData.GetString("dataJson") ?? "{}";
 
 
-            var enrichedBody = BuildBody(body, dataJson);
 
             EnsureChannel(ApplicationContext);
             
@@ -244,7 +254,7 @@ public class FcmHeavyWorker : Worker
                 .SetContentTitle(string.IsNullOrWhiteSpace(title) ? "Новое сообщение" : title)
                 .SetContentText(body)
                 .SetContentIntent(pendingIntent)
-                .SetStyle(new NotificationCompat.BigTextStyle().BigText(enrichedBody))
+                .SetStyle(new NotificationCompat.BigTextStyle().BigText(body))
                 .SetAutoCancel(true)
                 .SetPriority((int)NotificationPriority.High)
                 .Build();
@@ -263,15 +273,7 @@ public class FcmHeavyWorker : Worker
             return Result.InvokeRetry();
         }
     }
-
-    private static string BuildBody(string? body, string dataJson)
-    {
-        // Подставь свою бизнес-логику.
-        if (string.IsNullOrWhiteSpace(body))
-            body = "Получено новое уведомление";
-
-        return $"{body}\n{dataJson}";
-    }
+    
 
     private static void EnsureChannel(Context context)
     {

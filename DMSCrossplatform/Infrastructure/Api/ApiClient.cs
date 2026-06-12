@@ -33,6 +33,7 @@ public class ApiClient: IApiClient
     public async Task<TResponse> GetAsync<TResponse>(string path, CancellationToken ct = default)
     {
         using var resp = await _http.GetAsync(path, ct);
+        
         var content = await resp.Content.ReadAsStringAsync(ct);
         return await ReadAsync<TResponse>(resp, ct);
     }

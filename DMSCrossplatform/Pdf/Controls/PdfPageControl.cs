@@ -7,6 +7,7 @@ public class PdfPageControl : PdfViewerControl
     public PdfPageControl()
     {
         Background = Brushes.Transparent;
+        
     }
     public int PageIndex
     {
@@ -17,9 +18,11 @@ public class PdfPageControl : PdfViewerControl
             TriggerInitialRender();
         }
     }
+    
 
     private void TriggerInitialRender()
     {
         RestartDebounce();
     }
+    
 }
